@@ -249,8 +249,7 @@ fn client() -> Result<reqwest::Client,String> {
 }
 
 async fn token(client: &reqwest::Client, config: &Config) -> Result<String,String> {
-    let auth=rpc(client,&config.network.wallet_rpc_url,"auth.request",json!({"permissions":["Admin"],"credentials":"None"}),None).await?;
-    Ok(auth.get("token").and_then(Value::as_str).ok_or("wallet authentication token missing")?.to_owned())
+    crate::wallet_auth::token(client, &config.network.wallet_rpc_url).await
 }
 
 fn tagged_address(field: &Value, tag: u64, prefix: &str) -> Result<String,String> {

@@ -85,9 +85,7 @@ async fn rpc(client: &reqwest::Client, url: &str, method: &str, params: Value, b
 
 async fn authorized(config: &Config) -> Result<(reqwest::Client,String),String> {
     let client = reqwest::Client::builder().timeout(Duration::from_secs(150)).build().map_err(|e| e.to_string())?;
-    let auth = rpc(&client, &config.network.wallet_rpc_url,"auth.request",json!({"permissions":["Admin"],"credentials":"None"}),None).await?;
-    if let Some(error) = auth.get("error") { return Err(format!("Auth failed: {error}")); }
-    let token = auth.pointer("/result/token").and_then(Value::as_str).ok_or("Missing auth token")?.to_owned();
+    let token = crate::wallet_auth::token(&client, &config.network.wallet_rpc_url).await?;
     Ok((client,token))
 }
 

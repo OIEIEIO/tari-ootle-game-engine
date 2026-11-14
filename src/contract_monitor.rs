@@ -95,9 +95,8 @@ pub async fn fetch_controller(config: &Config, component: &str, template: &str) 
         if let Some(err) = body.get("error") { return Err(format!("{method}: {err}")); }
         body.get("result").cloned().ok_or_else(||format!("{method}: missing result"))
     }
-    let auth = rpc(&client,url,"auth.request",json!({"permissions":["Admin"],"credentials":"None"}),None).await?;
-    let token = auth.get("token").and_then(Value::as_str).ok_or("auth.request missing token")?;
-    let body = rpc(&client,url,"substates.get",json!({"substate_id":component}),Some(token)).await?;
+    let token = crate::wallet_auth::token(&client, url).await?;
+    let body = rpc(&client,url,"substates.get",json!({"substate_id":component}),Some(&token)).await?;
     decode_controller_state(&body,component,template,config)
 }
 

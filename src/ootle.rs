@@ -52,20 +52,16 @@ pub async fn fetch_balances(config: &Config) -> Result<LiveSnapshot, String> {
     let client = reqwest::Client::builder().timeout(Duration::from_secs(12))
         .build().map_err(|e| e.to_string())?;
     let url = &config.network.wallet_rpc_url;
-    let auth = rpc(&client, url, "auth.request", json!({
-        "permissions": ["Admin"], "credentials": "None"
-    }), None).await?;
-    let token = auth.get("token").and_then(Value::as_str)
-        .ok_or("auth.request did not return a bearer token")?;
+    let token = crate::wallet_auth::token(&client, url).await?;
     let mut accounts = Vec::new();
     for account in &config.accounts.accounts {
         let info = rpc(&client, url, "accounts.get", json!({
             "name_or_address": account.name
-        }), Some(token)).await?;
+        }), Some(&token)).await?;
         let on_chain = info.pointer("/account/is_confirmed_on_chain").and_then(Value::as_bool);
         let response = rpc(&client, url, "accounts.get_balances", json!({
             "account": account.name, "refresh": true
-        }), Some(token)).await?;
+        }), Some(&token)).await?;
         let balances = response.get("balances").and_then(Value::as_array)
             .ok_or_else(|| format!("{}: missing balances list", account.name))?;
         let resource = balances.iter().find(|item| item.get("resource_address").and_then(Value::as_str)

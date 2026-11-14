@@ -99,11 +99,8 @@ async fn template_status(State(state): State<AppState>) -> Json<Value> {
             let builder = client.post(url).json(&json!({"jsonrpc":"2.0","id":1,"method":method,"params":params}));
             if let Some(token) = token {builder.bearer_auth(token)} else {builder}
         };
-        let auth: Value = request("auth.request",json!({"permissions":["Admin"],"credentials":"None"}),None)
-            .send().await.map_err(|e| e.to_string())?.json().await.map_err(|e|e.to_string())?;
-        if let Some(err) = auth.get("error") {return Err(format!("wallet authentication: {err}"));}
-        let token = auth.pointer("/result/token").and_then(Value::as_str).ok_or("wallet auth token missing")?;
-        let query = |txid: &str| request("transactions.get_result",json!({"transaction_id":txid}),Some(token));
+        let token = ootle_asset_game::wallet_auth::token(&client, url).await?;
+        let query = |txid: &str| request("transactions.get_result",json!({"transaction_id":txid}),Some(&token));
         let pub_id = publication_id.as_deref().ok_or("missing publication transaction ID")?;
         let inst_id = instantiation_id.as_deref().ok_or("missing instantiation transaction ID")?;
         let publication: Value = query(pub_id).send().await.map_err(|e|e.to_string())?

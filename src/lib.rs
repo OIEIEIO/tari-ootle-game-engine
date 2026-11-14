@@ -11,3 +11,5 @@ pub mod diagnostics;
 pub mod contract_monitor;
 
 pub mod game_session;
+
+pub mod wallet_auth;
