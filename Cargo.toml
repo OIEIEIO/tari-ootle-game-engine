@@ -1,0 +1,22 @@
+# Ootle Asset Game | Cargo.toml
+# Purpose: Rust package manifest and single source of truth for the version.
+# All version reporting is derived from CARGO_PKG_VERSION at compile time.
+[package]
+name = "ootle-asset-game"
+version = "0.6.15"
+edition = "2021"
+description = "Ootle game session: on-chain asset ownership, atomic economic turns, and developer console"
+license = "MIT"
+publish = false
+
+[dependencies]
+axum = { version = "0.8", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# End of Cargo.toml

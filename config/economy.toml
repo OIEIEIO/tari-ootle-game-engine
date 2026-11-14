@@ -1,0 +1,26 @@
+# Ootle Asset Game | config/economy.toml
+# Purpose: Allocation policy for existing House revenue; bps total 10000.
+# House share is retained in its balance; only non-House shares move.
+# Changes require a server restart in v0.1.0.
+
+[[revenue_rules]]
+category = "property_sale"
+label = "Property / asset sale"
+house_bps = 9000
+community_bps = 500
+chance_bps = 500
+
+[[revenue_rules]]
+category = "game_fee"
+label = "Game fee"
+house_bps = 9000
+community_bps = 500
+chance_bps = 500
+
+[[revenue_rules]]
+category = "sponsorship"
+label = "Sponsorship"
+house_bps = 8000
+community_bps = 1500
+chance_bps = 500
+# End of economy.toml

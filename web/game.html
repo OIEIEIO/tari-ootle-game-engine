@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Ootle Asset Game — Live board</title>
+<link href="/game.css" rel="stylesheet"/>
+<script defer="" src="/game.js"></script>
+</head>
+<body>
+<header class="topbar">
+<strong>◈ Ootle Asset Game <small id="version"></small></strong>
+<nav>
+<a href="/">Game board</a>
+<a href="/developer">Live developer console</a>
+</nav>
+<span id="chain-light">CONNECTING</span>
+</header>
+<main>
+<div class="toolbar">
+<strong>40-square live board</strong>
+<span id="round-label">Round —</span>
+<div class="toolbar-actions">
+<button id="focus-board">Hide sidebar</button>
+<button id="reload">Refresh from Ootle</button>
+</div>
+</div>
+<div class="message" id="message">Connecting to Ootle…</div>
+<div class="layout" id="layout">
+<section class="board-panel">
+<div class="board" id="board">
+<div aria-label="Town Square walkway" class="walkway" id="walkway"><div class="walkway-markers" id="walkway-markers"></div></div>
+<section class="board-center" id="board-center">
+<div class="center-player-view" id="center-player-view">
+<div class="center-top">
+<div class="active-icon" id="center-icon">🚙</div>
+<div>
+<h1 id="active-player">Player —</h1>
+<div class="subhead" id="center-round">Reading on-chain state…</div>
+</div>
+</div>
+<div aria-live="polite" class="dice-pair">
+<div class="dice-face blank" id="dice-a"></div>
+<div class="dice-face blank" id="dice-b"></div>
+</div>
+<button class="roll-button" disabled="" id="roll-dice">Roll Dice</button>
+<div class="subhead" id="dice-result">Roll to begin your turn</div>
+<section class="landing-stage" hidden="" id="landing-stage">
+<div class="stage-kicker" id="stage-kicker"></div>
+<h2 id="stage-title"></h2>
+<div class="stage-subtitle" id="stage-subtitle"></div>
+<div class="stage-scene" hidden="" id="stage-scene"></div>
+<div class="stage-event" id="stage-event"></div>
+<div class="stage-actions" id="stage-actions"></div>
+<div class="stage-hint" id="stage-hint">Select the highlighted square to inspect or close this visit.</div>
+</section></div>
+<section aria-label="Visited asset profile" class="asset-feature" hidden="" id="asset-feature">
+<div class="feature-header"><button class="secondary" id="back-to-game" type="button">← Town Square</button><span class="feature-visit" id="feature-visit"></span></div>
+<div id="feature-content"></div>
+</section>
+</section>
+</div>
+</section>
+<aside class="sidebar" id="sidebar">
+<details class="card" open="">
+<summary>Players &amp; bankrolls</summary>
+<div id="players">Reading wallet balances…</div>
+<div class="portfolio" id="player-portfolio"></div></details><details class="card player-actions" open=""><summary>Player actions &amp; turn settlement</summary><details class="player-turn"><summary>Turn settlement</summary><section class="card decisions center-decisions">
+<h2>Resolve current turn</h2>
+<div id="landing">Roll the dice to select a landing square.</div>
+<div class="event-panel" id="event-panel">No live event yet.</div>
+<div hidden="" id="purchase-panel">
+<label for="purchase">Unowned asset decision</label>
+<select id="purchase">
+<option value="pass">Pass / no purchase</option>
+<option value="buy">Buy asset</option>
+</select>
+</div>
+<div hidden="" id="recovery-panel">
+<label for="sell">Recovery sale to House (80%)</label>
+<select id="sell"><option value="">No sale</option></select>
+</div>
+<div id="estimate">Awaiting roll and wallet balances…</div>
+<button disabled="" id="execute">Complete turn</button>
+<button class="secondary" disabled="" id="reset-roll">Discard roll</button>
+<div class="subhead" id="turn-outcome"></div>
+</section></details><details class="player-trades"><summary>Private sales &amp; property development</summary><section aria-label="Town Square private marketplace" class="town-square" id="town-square">
+<div class="town-head"><strong>Town Square · Private Sale</strong><span id="town-status">No active offer</span></div>
+<div class="town-compose" id="town-compose">
+<div class="town-description">Offer one of your properties to the other player before rolling.</div>
+<div class="town-form">
+<label>Asset <select id="trade-asset"><option value="">No assets available</option></select></label>
+<label>Price (tTARI) <input id="trade-price" min="0.000001" step="0.000001" type="number" value="10"/></label>
+</div>
+<button class="town-action" disabled="" id="trade-propose">Offer to Player 2</button>
+</div>
+<div hidden="" id="town-pending">
+<div id="town-offer-summary"></div>
+<div class="town-buttons">
+<button disabled="" id="trade-accept">Accept sale</button>
+<button class="secondary" disabled="" id="trade-decline">Decline</button>
+</div>
+</div>
+<div class="town-improvements" id="town-improvements">
+<div class="town-head"><strong>Property development</strong><span>Active owner only</span></div>
+<div class="town-description">Build one house, a second house, then a hotel on your own property.</div>
+<div class="town-form"><label>Property <select id="build-asset"></select></label>
+<label>Next construction <input id="build-price" readonly="" value="—"/></label></div>
+<button disabled="" id="build-submit">Build improvement</button>
+</div>
+</section></details></details>
+<details class="card">
+<summary>Live game state</summary>
+<dl>
+<dt>Round</dt><dd id="round">—</dd>
+<dt>Active</dt><dd id="current">—</dd>
+<dt>Turns</dt><dd id="turn-count">—</dd>
+<dt>Substate version</dt><dd id="substate-version">—</dd>
+</dl>
+<pre id="addresses"></pre>
+</details>
+<details class="card">
+<summary>Last live turn receipt</summary>
+<div id="last-result">No turn submitted this browser session.</div>
+<pre id="technical"></pre>
+</details>
+</aside>
+</div>
+<div class="asset-popover" hidden="" id="asset-popover" role="tooltip"></div>
+</main>
+</body>
+</html>

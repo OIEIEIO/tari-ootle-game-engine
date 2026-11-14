@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" role="img" aria-labelledby="t d">
+<title id="t">Harbor Table Bistro</title><desc id="d">Illustrated evening bistro with open windows, warm lights, and outdoor tables.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#244a73"/><stop offset="1" stop-color="#f29c6b"/></linearGradient>
+  <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4d4ad"/><stop offset="1" stop-color="#bf7549"/></linearGradient>
+  <linearGradient id="window" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe6a5"/><stop offset="1" stop-color="#e06f3c"/></linearGradient>
+</defs>
+<rect width="900" height="540" fill="url(#sky)"/>
+<rect y="360" width="900" height="180" fill="#192737"/>
+<path d="M90 190h720v205H90z" fill="url(#wall)" stroke="#5f4438" stroke-width="10"/>
+<rect x="120" y="148" width="660" height="42" rx="8" fill="#6a3830"/>
+<text x="450" y="177" font-size="30" text-anchor="middle" fill="#ffe8cb" font-family="Verdana">HARBOR TABLE BISTRO</text>
+<rect x="145" y="220" width="160" height="110" rx="10" fill="url(#window)" stroke="#5b4140" stroke-width="8"/>
+<rect x="370" y="220" width="160" height="110" rx="10" fill="url(#window)" stroke="#5b4140" stroke-width="8"/>
+<rect x="595" y="220" width="160" height="110" rx="10" fill="url(#window)" stroke="#5b4140" stroke-width="8"/>
+<rect x="395" y="255" width="110" height="140" rx="8" fill="#6a3f31" stroke="#4e3028" stroke-width="8"/>
+<circle cx="215" cy="420" r="44" fill="#5d4036"/><circle cx="215" cy="420" r="34" fill="#f0d9bb"/>
+<circle cx="685" cy="420" r="44" fill="#5d4036"/><circle cx="685" cy="420" r="34" fill="#f0d9bb"/>
+<rect x="198" y="418" width="34" height="42" rx="6" fill="#432f2b"/>
+<rect x="668" y="418" width="34" height="42" rx="6" fill="#432f2b"/>
+<path d="M265 260l45 100" stroke="#fff3ce" stroke-width="4" opacity=".75"/>
+<path d="M490 260l45 100" stroke="#fff3ce" stroke-width="4" opacity=".75"/>
+<path d="M715 260l45 100" stroke="#fff3ce" stroke-width="4" opacity=".75"/>
+</svg>

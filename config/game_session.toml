@@ -1,0 +1,8 @@
+# Ootle Asset Game v0.6.10 | confirmed migrated game pointer.
+# New component was independently read and matched the previous on-chain game state.
+template_address = "b56a9f6e03a4be0dbc762fc3b8965ddb756002bfeae43a426f49e9ff63b0aa72"
+component_address = "component_a26b9a38ce89cdaba94af48c2605e5e9eec2f8b72c0db1ab7cc265bee33532e1"
+publication_transaction_id = "7eefe9ac6f3c5adfef97d037a2ddfd0797c6dac38abded609420ecbd7b0fb2c4"
+instantiation_transaction_id = "6c83169d795bd876601a8d179d21052adf95e70dde5f8264a82346d3f6cd4e8e"
+migrated_from_component = "component_6c8c244e577d397311f534bac0e7eddc8361cc12b606dbe02c55ed07260e4b10"
+board_size = 40

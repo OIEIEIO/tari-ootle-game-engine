@@ -1,0 +1,11 @@
+/target/
+.env
+.env.*
+*.log
+*.db
+*.sqlite
+*.sqlite3
+*.key
+*.pem
+config/local*
+config/secrets*
