@@ -1,7 +1,0 @@
-# Ootle Asset Game | config/network.toml
-# Purpose: Local Swarm JSON-RPC endpoint; backend-only configuration.
-# Never expose bearer tokens or privileged wallet operations in browser code.
-wallet_rpc_url = "http://127.0.0.1:12010/json_rpc"
-listen_host = "127.0.0.1"
-preferred_port = 3000
-# End of network.toml

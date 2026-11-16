@@ -1,11 +1,19 @@
-/target/
+# Ootle Game Engine | .gitignore
+# Version: v0.3.0
+# Build outputs, local deployment journals and secrets stay out of source control.
+**/target/
+**/Cargo.lock
+!engine-tests/Cargo.lock
+!app/Cargo.lock
+app/data/
+__pycache__/
+*.pyc
 .env
 .env.*
-*.log
-*.db
-*.sqlite
-*.sqlite3
+*.cookie
 *.key
 *.pem
-config/local*
-config/secrets*
+deployments/bootstrap-state.json
+deployments/*-state.json
+deployments/*.tmp
+# End of .gitignore

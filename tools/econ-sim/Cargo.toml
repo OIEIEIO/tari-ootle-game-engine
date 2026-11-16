@@ -1,0 +1,19 @@
+# Ootle Game Engine | tools/econ-sim/Cargo.toml
+# Version: v0.3.2
+# Monte Carlo economics of the Town Square game. Every turn is settled by the backend's own
+# simulator (app/src/sim.rs), which the engine tests prove equal to the contract.
+[package]
+name = "ootle-econ-sim"
+version = "0.3.2"
+edition = "2021"
+publish = false
+
+[dependencies]
+ootle-game-engine-app = { path = "../../app" }
+ootle_town_square = { path = "../../contracts/town_square" }
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+# End of tools/econ-sim/Cargo.toml
+# Location: tools/econ-sim/Cargo.toml · Created: 2026-11-16 03:43:57 UTC

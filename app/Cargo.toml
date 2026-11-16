@@ -1,0 +1,30 @@
+# Ootle Game Engine | app/Cargo.toml
+# Version: v0.4.2
+# Backend (Axum) and embedded frontend for the four-contract Ootle game engine.
+# The board rules are shared with the on-chain template (contracts/town_square/src/rules.rs).
+[package]
+name = "ootle-game-engine-app"
+version = "0.4.2"
+edition = "2021"
+publish = false
+
+[lib]
+name = "ootle_app"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ootle-game-engine"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.8", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+getrandom = "0.2"
+ootle_town_square = { path = "../contracts/town_square" }
+# End of app/Cargo.toml

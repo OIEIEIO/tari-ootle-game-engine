@@ -1,0 +1,126 @@
+{
+  "substate_from_remote": {
+    "substate": {
+      "Component": {
+        "body": {
+          "state": [
+            [
+              [
+                {
+                  "@cbor": "tag",
+                  "tag": 130,
+                  "value": [
+                    {
+                      "@cbor": "tag",
+                      "tag": 131,
+                      "value": {
+                        "@cbor": "bytes",
+                        "hex": "0100000000000000000000000000000000000000000000000000000000000000"
+                      }
+                    },
+                    [
+                      0,
+                      [
+                        {
+                          "@cbor": "bytes",
+                          "hex": "505c1ac377c03a99e02454097496925ce2b785cd0dbbf36719d444f964b95c15"
+                        }
+                      ]
+                    ]
+                  ]
+                },
+                "Seat 1",
+                1
+              ],
+              [
+                {
+                  "@cbor": "tag",
+                  "tag": 130,
+                  "value": [
+                    {
+                      "@cbor": "tag",
+                      "tag": 131,
+                      "value": {
+                        "@cbor": "bytes",
+                        "hex": "0100000000000000000000000000000000000000000000000000000000000000"
+                      }
+                    },
+                    [
+                      0,
+                      [
+                        {
+                          "@cbor": "bytes",
+                          "hex": "004af7f23a1edc5811d70df9655f7966eff49234524c75563d64badadefeea1b"
+                        }
+                      ]
+                    ]
+                  ]
+                },
+                "Seat 2",
+                2
+              ],
+              [
+                {
+                  "@cbor": "tag",
+                  "tag": 130,
+                  "value": [
+                    {
+                      "@cbor": "tag",
+                      "tag": 131,
+                      "value": {
+                        "@cbor": "bytes",
+                        "hex": "0100000000000000000000000000000000000000000000000000000000000000"
+                      }
+                    },
+                    [
+                      0,
+                      [
+                        {
+                          "@cbor": "bytes",
+                          "hex": "1878f0ec959e0c9ce3f91bd66e541555387737b47609c89c094c4bd026115e0e"
+                        }
+                      ]
+                    ]
+                  ]
+                },
+                "Seat 3",
+                3
+              ],
+              [
+                {
+                  "@cbor": "tag",
+                  "tag": 130,
+                  "value": [
+                    {
+                      "@cbor": "tag",
+                      "tag": 131,
+                      "value": {
+                        "@cbor": "bytes",
+                        "hex": "0100000000000000000000000000000000000000000000000000000000000000"
+                      }
+                    },
+                    [
+                      0,
+                      [
+                        {
+                          "@cbor": "bytes",
+                          "hex": "fe9b8d5502600cf4709819cfe097a18f601bf198d81bbcf0e63db4171fb8ff73"
+                        }
+                      ]
+                    ]
+                  ]
+                },
+                "Seat 4",
+                4
+              ]
+            ]
+          ]
+        },
+        "header": {
+          "template_address": "387e1f0def89daf77c5fb9ed890669cdd37ad9b2ea988aadf15be0aca9feb0a9"
+        }
+      }
+    },
+    "version": 7
+  }
+}

@@ -1,0 +1,1061 @@
+{
+ "file": {
+  "name": "catalogue.json",
+  "location": "app/config/catalogue.json",
+  "version": "v0.4.0",
+  "comment": "Town Square catalogue: 22 zoned lots with three businesses each, and 18 special squares. Presentation only; settlement never reads it. Colours are main / accent.",
+  "created": "2026-11-16 15:40:30 UTC"
+ },
+ "version": "v0.4.0",
+ "town": "Town Square Classic",
+ "districts": [
+  {
+   "name": "Market Lane",
+   "squares": [
+    1,
+    3,
+    6,
+    8
+   ]
+  },
+  {
+   "name": "Main Street",
+   "squares": [
+    11,
+    13,
+    14,
+    16,
+    18,
+    19
+   ]
+  },
+  {
+   "name": "Works Row",
+   "squares": [
+    21,
+    23,
+    25,
+    26,
+    28,
+    29
+   ]
+  },
+  {
+   "name": "Harbour Front",
+   "squares": [
+    31,
+    32,
+    34,
+    36,
+    38,
+    39
+   ]
+  }
+ ],
+ "lots": [
+  {
+   "square": 1,
+   "asset": "A",
+   "zone": "kiosk",
+   "zone_name": "Kiosk",
+   "district": "Market Lane",
+   "businesses": [
+    {
+     "id": "corner-newsstand",
+     "name": "The Corner Newsstand",
+     "theme": "papers, maps and penny sweets",
+     "main": "#2f7d5b",
+     "accent": "#f3e3b5",
+     "short": "NEWS",
+     "motif": "papers",
+     "layer": "pages"
+    },
+    {
+     "id": "bloom-and-stem",
+     "name": "Bloom & Stem Flower Stall",
+     "theme": "buckets of fresh flowers",
+     "main": "#e86a9a",
+     "accent": "#4caf50",
+     "short": "BLOOM",
+     "motif": "flowers",
+     "layer": "bees"
+    },
+    {
+     "id": "rolling-bean",
+     "name": "The Rolling Bean Cart",
+     "theme": "espresso on wheels",
+     "main": "#5a3a28",
+     "accent": "#d4a84b",
+     "short": "BEAN",
+     "motif": "cart",
+     "layer": "espresso"
+    }
+   ]
+  },
+  {
+   "square": 3,
+   "asset": "B",
+   "zone": "cafe",
+   "zone_name": "Café",
+   "district": "Market Lane",
+   "businesses": [
+    {
+     "id": "morning-mug",
+     "name": "The Morning Mug",
+     "theme": "bottomless coffee, window seats",
+     "main": "#2a8c8c",
+     "accent": "#f1e4c8",
+     "short": "MUG",
+     "motif": "mug",
+     "layer": "cups"
+    },
+    {
+     "id": "crumb-and-cup",
+     "name": "Crumb & Cup",
+     "theme": "scones and pour-overs",
+     "main": "#8fae7e",
+     "accent": "#c96f4a",
+     "short": "CRUMB",
+     "motif": "scones",
+     "layer": "cups"
+    },
+    {
+     "id": "night-owl",
+     "name": "The Night Owl Café",
+     "theme": "open past midnight",
+     "main": "#3b3f8f",
+     "accent": "#ffb547",
+     "short": "OWL",
+     "motif": "owl",
+     "layer": "owl"
+    }
+   ]
+  },
+  {
+   "square": 6,
+   "asset": "C",
+   "zone": "market",
+   "zone_name": "Market",
+   "district": "Market Lane",
+   "businesses": [
+    {
+     "id": "harvest-hall",
+     "name": "Harvest Hall Market",
+     "theme": "covered stalls of local produce",
+     "main": "#a3352b",
+     "accent": "#e8c56b",
+     "short": "HARVEST",
+     "motif": "produce",
+     "layer": "chatter"
+    },
+    {
+     "id": "fishmongers-dock",
+     "name": "The Fishmonger's Dock",
+     "theme": "catch of the day on ice",
+     "main": "#2f6f9f",
+     "accent": "#c9d2e3",
+     "short": "FISH",
+     "motif": "fish",
+     "layer": "gulls"
+    },
+    {
+     "id": "spice-row",
+     "name": "Spice Row Bazaar",
+     "theme": "sacks of spices, hanging scales",
+     "main": "#e8a33d",
+     "accent": "#8e2430",
+     "short": "SPICE",
+     "motif": "spice",
+     "layer": "chimes"
+    }
+   ]
+  },
+  {
+   "square": 8,
+   "asset": "D",
+   "zone": "bakery",
+   "zone_name": "Bakery",
+   "district": "Market Lane",
+   "businesses": [
+    {
+     "id": "golden-crust",
+     "name": "The Golden Crust",
+     "theme": "bread from a wood oven",
+     "main": "#d9a441",
+     "accent": "#6b4226",
+     "short": "CRUST",
+     "motif": "oven",
+     "layer": "fire"
+    },
+    {
+     "id": "sugarloaf",
+     "name": "Sugarloaf Patisserie",
+     "theme": "cakes in the window",
+     "main": "#f2a7c3",
+     "accent": "#9fe0c9",
+     "short": "CAKE",
+     "motif": "cake",
+     "layer": "bell"
+    },
+    {
+     "id": "pretzel-mill",
+     "name": "The Pretzel Mill",
+     "theme": "waterwheel and twisted loaves",
+     "main": "#4a6f8f",
+     "accent": "#d9a441",
+     "short": "MILL",
+     "motif": "waterwheel",
+     "layer": "water"
+    }
+   ]
+  },
+  {
+   "square": 11,
+   "asset": "E",
+   "zone": "shop",
+   "zone_name": "Shop",
+   "district": "Main Street",
+   "businesses": [
+    {
+     "id": "odds-and-ends",
+     "name": "Odds & Ends General Store",
+     "theme": "everything, somewhere",
+     "main": "#3f6b45",
+     "accent": "#d4a84b",
+     "short": "ODDS",
+     "motif": "crates",
+     "layer": "bell"
+    },
+    {
+     "id": "tinkers-hardware",
+     "name": "The Tinker's Hardware",
+     "theme": "nails by the pound",
+     "main": "#546478",
+     "accent": "#ff8a3d",
+     "short": "TOOLS",
+     "motif": "tools",
+     "layer": "tools"
+    },
+    {
+     "id": "wind-up-toys",
+     "name": "The Wind-Up Toy Shop",
+     "theme": "kites and tin robots in the window",
+     "main": "#d64541",
+     "accent": "#ffd23f",
+     "short": "TOYS",
+     "motif": "toys",
+     "layer": "music-box"
+    }
+   ]
+  },
+  {
+   "square": 13,
+   "asset": "F",
+   "zone": "bookshop",
+   "zone_name": "Bookshop",
+   "district": "Main Street",
+   "businesses": [
+    {
+     "id": "dog-eared-page",
+     "name": "The Dog-Eared Page",
+     "theme": "used books, a reading cat",
+     "main": "#7a2e2e",
+     "accent": "#efe2c2",
+     "short": "BOOKS",
+     "motif": "books",
+     "layer": "pages"
+    },
+    {
+     "id": "inkwell",
+     "name": "The Inkwell Bookshop",
+     "theme": "late-night readings",
+     "main": "#23395b",
+     "accent": "#e8b94a",
+     "short": "INK",
+     "motif": "inkwell",
+     "layer": "clock"
+    },
+    {
+     "id": "stargazer",
+     "name": "Stargazer Comics & Maps",
+     "theme": "comics, charts and globes",
+     "main": "#5b3f8f",
+     "accent": "#4dd0e1",
+     "short": "STARS",
+     "motif": "globe",
+     "layer": "chimes"
+    }
+   ]
+  },
+  {
+   "square": 14,
+   "asset": "G",
+   "zone": "sweets",
+   "zone_name": "Sweets",
+   "district": "Main Street",
+   "businesses": [
+    {
+     "id": "frosted-scoop",
+     "name": "The Frosted Scoop",
+     "theme": "ice cream, twenty flavours",
+     "main": "#8fe3c9",
+     "accent": "#f07aa0",
+     "short": "SCOOP",
+     "motif": "icecream",
+     "layer": "music-box"
+    },
+    {
+     "id": "candy-cartography",
+     "name": "Candy Cartography",
+     "theme": "jars of sweets sorted by colour",
+     "main": "#c3a6f2",
+     "accent": "#ffe36b",
+     "short": "CANDY",
+     "motif": "candy",
+     "layer": "chimes"
+    },
+    {
+     "id": "chocolate-works",
+     "name": "The Chocolate Works",
+     "theme": "a chocolate fountain",
+     "main": "#5a3424",
+     "accent": "#d4a84b",
+     "short": "CHOCO",
+     "motif": "chocolate",
+     "layer": "bubbling"
+    }
+   ]
+  },
+  {
+   "square": 16,
+   "asset": "H",
+   "zone": "restaurant",
+   "zone_name": "Restaurant",
+   "district": "Main Street",
+   "businesses": [
+    {
+     "id": "copper-kettle",
+     "name": "The Copper Kettle",
+     "theme": "brick bistro, copper awning",
+     "main": "#8a3b26",
+     "accent": "#d9822b",
+     "short": "GRAND",
+     "motif": "kettle",
+     "layer": "steam"
+    },
+    {
+     "id": "pirate-cafe",
+     "name": "The Pirate Café",
+     "theme": "ship-front café, mast and flag",
+     "main": "#1f4e5a",
+     "accent": "#d4a84b",
+     "short": "PIRATE",
+     "motif": "pirate",
+     "layer": "gulls"
+    },
+    {
+     "id": "lantern-noodle",
+     "name": "Lantern Noodle House",
+     "theme": "curved eaves, hanging lanterns",
+     "main": "#8e2430",
+     "accent": "#2f7d5b",
+     "short": "NOODLE",
+     "motif": "lantern",
+     "layer": "chimes"
+    }
+   ]
+  },
+  {
+   "square": 18,
+   "asset": "I",
+   "zone": "pharmacy",
+   "zone_name": "Pharmacy",
+   "district": "Main Street",
+   "businesses": [
+    {
+     "id": "mortar-and-pestle",
+     "name": "The Mortar & Pestle",
+     "theme": "apothecary jars and herbs",
+     "main": "#3a7d5b",
+     "accent": "#e8f0ec",
+     "short": "MORTAR",
+     "motif": "mortar",
+     "layer": "clock"
+    },
+    {
+     "id": "main-street-chemist",
+     "name": "Main Street Chemist",
+     "theme": "bright counter, glowing cross sign",
+     "main": "#1fa38a",
+     "accent": "#f1f5f9",
+     "short": "CHEMIST",
+     "motif": "cross",
+     "layer": "hum"
+    },
+    {
+     "id": "herbalists-garden",
+     "name": "The Herbalist's Garden",
+     "theme": "rooftop herbs and teas",
+     "main": "#8fae7e",
+     "accent": "#7a4a6e",
+     "short": "HERBS",
+     "motif": "herbs",
+     "layer": "bees"
+    }
+   ]
+  },
+  {
+   "square": 19,
+   "asset": "J",
+   "zone": "cinema",
+   "zone_name": "Cinema",
+   "district": "Main Street",
+   "businesses": [
+    {
+     "id": "starlight",
+     "name": "The Starlight Picture House",
+     "theme": "marquee bulbs and red carpet",
+     "main": "#b22234",
+     "accent": "#f2c14e",
+     "short": "STAR",
+     "motif": "marquee",
+     "layer": "projector"
+    },
+    {
+     "id": "midnight-reel",
+     "name": "The Midnight Reel",
+     "theme": "retro neon, late shows",
+     "main": "#2b1f4a",
+     "accent": "#ff4fa3",
+     "short": "REEL",
+     "motif": "neon",
+     "layer": "projector"
+    },
+    {
+     "id": "silver-screen",
+     "name": "The Silver Screen Palace",
+     "theme": "art-deco front",
+     "main": "#c9d2e3",
+     "accent": "#2a8c8c",
+     "short": "PALACE",
+     "motif": "deco",
+     "layer": "projector"
+    }
+   ]
+  },
+  {
+   "square": 21,
+   "asset": "K",
+   "zone": "workshop",
+   "zone_name": "Workshop",
+   "district": "Works Row",
+   "businesses": [
+    {
+     "id": "joinery",
+     "name": "The Joinery",
+     "theme": "timber and sawdust",
+     "main": "#c58b4a",
+     "accent": "#3f6b45",
+     "short": "JOINERY",
+     "motif": "timber",
+     "layer": "saw"
+    },
+    {
+     "id": "sparks-electrical",
+     "name": "Sparks Electrical",
+     "theme": "coils and test lamps",
+     "main": "#3fa7ff",
+     "accent": "#ffd23f",
+     "short": "SPARKS",
+     "motif": "sparks",
+     "layer": "hum"
+    },
+    {
+     "id": "kiln-pottery",
+     "name": "The Kiln Pottery Works",
+     "theme": "glaze and fire",
+     "main": "#b5653c",
+     "accent": "#4a7fb5",
+     "short": "KILN",
+     "motif": "kiln",
+     "layer": "fire"
+    }
+   ]
+  },
+  {
+   "square": 23,
+   "asset": "L",
+   "zone": "warehouse",
+   "zone_name": "Warehouse",
+   "district": "Works Row",
+   "businesses": [
+    {
+     "id": "brick-and-bale",
+     "name": "Brick & Bale Storehouse",
+     "theme": "crates and a hoist",
+     "main": "#8a3b26",
+     "accent": "#8a9bb0",
+     "short": "BALE",
+     "motif": "hoist",
+     "layer": "chains"
+    },
+    {
+     "id": "cold-store",
+     "name": "The Cold Store",
+     "theme": "ice blocks and frost",
+     "main": "#bfe6f2",
+     "accent": "#23395b",
+     "short": "COLD",
+     "motif": "ice",
+     "layer": "hum"
+    },
+    {
+     "id": "harbourline-freight",
+     "name": "Harbourline Freight",
+     "theme": "container stacks",
+     "main": "#e0702e",
+     "accent": "#2f6f9f",
+     "short": "FREIGHT",
+     "motif": "containers",
+     "layer": "horn"
+    }
+   ]
+  },
+  {
+   "square": 25,
+   "asset": "M",
+   "zone": "depot",
+   "zone_name": "Depot",
+   "district": "Works Row",
+   "businesses": [
+    {
+     "id": "tram-shed",
+     "name": "Tram Shed No. 7",
+     "theme": "trams resting under arches",
+     "main": "#2f7d5b",
+     "accent": "#f1e4c8",
+     "short": "TRAMS",
+     "motif": "tram",
+     "layer": "tram-bell"
+    },
+    {
+     "id": "bus-barn",
+     "name": "The Bus Barn",
+     "theme": "rows of buses",
+     "main": "#f2c14e",
+     "accent": "#5c6676",
+     "short": "BUSES",
+     "motif": "bus",
+     "layer": "engine"
+    },
+    {
+     "id": "iron-horse",
+     "name": "Iron Horse Rail Yard",
+     "theme": "engine turntable",
+     "main": "#2a2f3a",
+     "accent": "#c23b3b",
+     "short": "RAIL",
+     "motif": "rail",
+     "layer": "whistle"
+    }
+   ]
+  },
+  {
+   "square": 26,
+   "asset": "N",
+   "zone": "garage",
+   "zone_name": "Garage",
+   "district": "Works Row",
+   "businesses": [
+    {
+     "id": "gearbox-garage",
+     "name": "The Gearbox Garage",
+     "theme": "two lifts and a tyre wall",
+     "main": "#3b4556",
+     "accent": "#4dd0e1",
+     "short": "GEARBOX",
+     "motif": "lifts",
+     "layer": "ratchet"
+    },
+    {
+     "id": "sparkplug-motors",
+     "name": "Sparkplug Motors",
+     "theme": "showroom and test track",
+     "main": "#d64541",
+     "accent": "#c9d2e3",
+     "short": "MOTORS",
+     "motif": "showroom",
+     "layer": "engine"
+    },
+    {
+     "id": "rust-and-bolt",
+     "name": "Rust & Bolt Repairs",
+     "theme": "junkyard charm",
+     "main": "#a0522d",
+     "accent": "#6b7a3a",
+     "short": "REPAIRS",
+     "motif": "scrap",
+     "layer": "clank"
+    }
+   ]
+  },
+  {
+   "square": 28,
+   "asset": "O",
+   "zone": "foundry",
+   "zone_name": "Foundry",
+   "district": "Works Row",
+   "businesses": [
+    {
+     "id": "anvil-foundry",
+     "name": "The Anvil Foundry",
+     "theme": "molten iron glow",
+     "main": "#2a2f3a",
+     "accent": "#ff7a2f",
+     "short": "ANVIL",
+     "motif": "anvil",
+     "layer": "hammer"
+    },
+    {
+     "id": "copperline-smelting",
+     "name": "Copperline Smelting",
+     "theme": "copper vats",
+     "main": "#c87533",
+     "accent": "#43b3a1",
+     "short": "COPPER",
+     "motif": "vats",
+     "layer": "bubbling"
+    },
+    {
+     "id": "bellworks",
+     "name": "The Bellworks",
+     "theme": "casting the town's bells",
+     "main": "#a8742a",
+     "accent": "#23395b",
+     "short": "BELLS",
+     "motif": "bell",
+     "layer": "bell"
+    }
+   ]
+  },
+  {
+   "square": 29,
+   "asset": "P",
+   "zone": "brewery",
+   "zone_name": "Brewery",
+   "district": "Works Row",
+   "businesses": [
+    {
+     "id": "hop-and-barrel",
+     "name": "The Hop & Barrel Brewery",
+     "theme": "oak barrels and hop vines",
+     "main": "#8a5a2b",
+     "accent": "#7fae3a",
+     "short": "BARREL",
+     "motif": "barrels",
+     "layer": "bubbling"
+    },
+    {
+     "id": "old-mill-cider",
+     "name": "Old Mill Cider House",
+     "theme": "apples and a press",
+     "main": "#c23b3b",
+     "accent": "#4caf50",
+     "short": "CIDER",
+     "motif": "apples",
+     "layer": "creak"
+    },
+    {
+     "id": "root-beer-works",
+     "name": "The Root Beer Works",
+     "theme": "fizzing soda",
+     "main": "#5a3424",
+     "accent": "#f1e4c8",
+     "short": "FIZZ",
+     "motif": "soda",
+     "layer": "fizz"
+    }
+   ]
+  },
+  {
+   "square": 31,
+   "asset": "Q",
+   "zone": "marina",
+   "zone_name": "Marina",
+   "district": "Harbour Front",
+   "businesses": [
+    {
+     "id": "anchor-point",
+     "name": "Anchor Point Marina",
+     "theme": "sailboats at the pier",
+     "main": "#23395b",
+     "accent": "#f1f5f9",
+     "short": "ANCHOR",
+     "motif": "sailboats",
+     "layer": "rigging"
+    },
+    {
+     "id": "lighthouse-boathouse",
+     "name": "The Lighthouse Boathouse",
+     "theme": "boat rentals",
+     "main": "#c23b3b",
+     "accent": "#f1f5f9",
+     "short": "LIGHT",
+     "motif": "lighthouse",
+     "layer": "foghorn"
+    },
+    {
+     "id": "tidewater-yacht-club",
+     "name": "Tidewater Yacht Club",
+     "theme": "flags and pennants",
+     "main": "#1fa38a",
+     "accent": "#d4a84b",
+     "short": "YACHT",
+     "motif": "pennants",
+     "layer": "rigging"
+    }
+   ]
+  },
+  {
+   "square": 32,
+   "asset": "R",
+   "zone": "gallery",
+   "zone_name": "Gallery",
+   "district": "Harbour Front",
+   "businesses": [
+    {
+     "id": "glass-gallery",
+     "name": "The Glass Gallery",
+     "theme": "glass sculptures",
+     "main": "#7fdcd6",
+     "accent": "#8a6be8",
+     "short": "GLASS",
+     "motif": "glass",
+     "layer": "chimes"
+    },
+    {
+     "id": "canvas-and-frame",
+     "name": "Canvas & Frame",
+     "theme": "painters' studios",
+     "main": "#e8e2d6",
+     "accent": "#d9a441",
+     "short": "CANVAS",
+     "motif": "easel",
+     "layer": "murmur"
+    },
+    {
+     "id": "lightbox-museum",
+     "name": "The Lightbox Museum",
+     "theme": "light installations",
+     "main": "#14182a",
+     "accent": "#e879f9",
+     "short": "LIGHTS",
+     "motif": "lightbeam",
+     "layer": "hum"
+    }
+   ]
+  },
+  {
+   "square": 34,
+   "asset": "S",
+   "zone": "theatre",
+   "zone_name": "Theatre",
+   "district": "Harbour Front",
+   "businesses": [
+    {
+     "id": "grand-proscenium",
+     "name": "The Grand Proscenium",
+     "theme": "velvet curtains",
+     "main": "#7a1f2b",
+     "accent": "#e8b94a",
+     "short": "STAGE",
+     "motif": "curtains",
+     "layer": "applause"
+    },
+    {
+     "id": "puppet-playhouse",
+     "name": "The Puppet Playhouse",
+     "theme": "strings and stars",
+     "main": "#3f5fbf",
+     "accent": "#ffd23f",
+     "short": "PUPPET",
+     "motif": "puppets",
+     "layer": "music-box"
+    },
+    {
+     "id": "moonlight-opera",
+     "name": "Moonlight Opera House",
+     "theme": "domed roof",
+     "main": "#1f2a4a",
+     "accent": "#e9e3c9",
+     "short": "OPERA",
+     "motif": "dome",
+     "layer": "strings"
+    }
+   ]
+  },
+  {
+   "square": 36,
+   "asset": "T",
+   "zone": "spa",
+   "zone_name": "Spa",
+   "district": "Harbour Front",
+   "businesses": [
+    {
+     "id": "steam-and-stone",
+     "name": "Steam & Stone Bathhouse",
+     "theme": "hot pools and steam",
+     "main": "#546478",
+     "accent": "#ffb070",
+     "short": "STEAM",
+     "motif": "steampool",
+     "layer": "steam"
+    },
+    {
+     "id": "salt-air-spa",
+     "name": "The Salt Air Spa",
+     "theme": "sea salt and cedar",
+     "main": "#4a90a8",
+     "accent": "#a0522d",
+     "short": "SALT",
+     "motif": "salt",
+     "layer": "waves"
+    },
+    {
+     "id": "lotus-garden",
+     "name": "Lotus Garden Retreat",
+     "theme": "lily pond and lanterns",
+     "main": "#f2a7c3",
+     "accent": "#3a9a6e",
+     "short": "LOTUS",
+     "motif": "lotus",
+     "layer": "water"
+    }
+   ]
+  },
+  {
+   "square": 38,
+   "asset": "U",
+   "zone": "inn",
+   "zone_name": "Inn",
+   "district": "Harbour Front",
+   "businesses": [
+    {
+     "id": "weary-traveller",
+     "name": "The Weary Traveller Inn",
+     "theme": "fireside and lanterns",
+     "main": "#6b4a2a",
+     "accent": "#ffcf7a",
+     "short": "INN",
+     "motif": "fireside",
+     "layer": "fire"
+    },
+    {
+     "id": "harbour-rest",
+     "name": "The Harbour Rest",
+     "theme": "seaside rooms",
+     "main": "#f1f5f9",
+     "accent": "#3f7fbf",
+     "short": "REST",
+     "motif": "seaside",
+     "layer": "waves"
+    },
+    {
+     "id": "crooked-chimney",
+     "name": "The Crooked Chimney",
+     "theme": "a leaning chimney, cosy beds",
+     "main": "#8a3b26",
+     "accent": "#6b7a3a",
+     "short": "CHIMNEY",
+     "motif": "chimney",
+     "layer": "fire"
+    }
+   ]
+  },
+  {
+   "square": 39,
+   "asset": "V",
+   "zone": "grand-hotel",
+   "zone_name": "Grand hotel",
+   "district": "Harbour Front",
+   "businesses": [
+    {
+     "id": "grand-meridian",
+     "name": "The Grand Meridian",
+     "theme": "gilded tower",
+     "main": "#14182a",
+     "accent": "#e8b94a",
+     "short": "MERIDIAN",
+     "motif": "goldtower",
+     "layer": "strings"
+    },
+    {
+     "id": "seaglass-palace",
+     "name": "The Seaglass Palace",
+     "theme": "glass dome on the water",
+     "main": "#7fdcd6",
+     "accent": "#f1f5f9",
+     "short": "PALACE",
+     "motif": "glassdome",
+     "layer": "waves"
+    },
+    {
+     "id": "aurora-heights",
+     "name": "The Aurora Heights",
+     "theme": "rooftop light show",
+     "main": "#6b4ae8",
+     "accent": "#2ee6a6",
+     "short": "AURORA",
+     "motif": "aurora",
+     "layer": "hum"
+    }
+   ]
+  }
+ ],
+ "specials": [
+  {
+   "square": 0,
+   "type": "go",
+   "name": "The Town Gate",
+   "shows": "clock arch; GO reward",
+   "scene": "town-gate",
+   "ambient": "clock"
+  },
+  {
+   "square": 2,
+   "type": "chance",
+   "name": "The Fortune Booth",
+   "shows": "card drawn and amount",
+   "scene": "fortune-booth",
+   "ambient": "chimes"
+  },
+  {
+   "square": 4,
+   "type": "fee",
+   "name": "The Toll Booth",
+   "shows": "fee paid",
+   "scene": "toll-booth",
+   "ambient": "engine"
+  },
+  {
+   "square": 5,
+   "type": "community",
+   "name": "Town Hall Notice Board",
+   "shows": "card drawn and amount",
+   "scene": "notice-board",
+   "ambient": "murmur"
+  },
+  {
+   "square": 7,
+   "type": "penalty",
+   "name": "The Parking Warden",
+   "shows": "penalty paid",
+   "scene": "parking-warden",
+   "ambient": "whistle"
+  },
+  {
+   "square": 9,
+   "type": "reward",
+   "name": "The Prize Stand",
+   "shows": "reward collected",
+   "scene": "prize-stand",
+   "ambient": "chimes"
+  },
+  {
+   "square": 10,
+   "type": "maintenance",
+   "name": "Maintenance Bay",
+   "shows": "held seat, attempts and amount owed",
+   "scene": "maintenance-bay",
+   "ambient": "ratchet"
+  },
+  {
+   "square": 12,
+   "type": "utility",
+   "name": "Waterworks & Power",
+   "shows": "no charge in current rules",
+   "scene": "waterworks",
+   "ambient": "hum"
+  },
+  {
+   "square": 15,
+   "type": "transit",
+   "name": "North Station",
+   "shows": "future link to other boards",
+   "scene": "north-station",
+   "ambient": "station"
+  },
+  {
+   "square": 17,
+   "type": "community",
+   "name": "The Community Garden",
+   "shows": "card drawn and amount",
+   "scene": "community-garden",
+   "ambient": "bees"
+  },
+  {
+   "square": 20,
+   "type": "free-park",
+   "name": "Free Park",
+   "shows": "fountain and benches; nothing to pay",
+   "scene": "free-park",
+   "ambient": "crickets"
+  },
+  {
+   "square": 22,
+   "type": "chance",
+   "name": "The Wishing Fountain",
+   "shows": "card drawn and amount",
+   "scene": "wishing-fountain",
+   "ambient": "water"
+  },
+  {
+   "square": 24,
+   "type": "fee",
+   "name": "Parking Meter Lane",
+   "shows": "fee paid",
+   "scene": "parking-meters",
+   "ambient": "clicks"
+  },
+  {
+   "square": 27,
+   "type": "community",
+   "name": "The Bandstand",
+   "shows": "card drawn and amount",
+   "scene": "bandstand",
+   "ambient": "music-box"
+  },
+  {
+   "square": 30,
+   "type": "back-to-maintenance",
+   "name": "The Tow Yard",
+   "shows": "tow truck sends the seat to Maintenance",
+   "scene": "tow-yard",
+   "ambient": "horn"
+  },
+  {
+   "square": 33,
+   "type": "chance",
+   "name": "The Prize Wheel",
+   "shows": "card drawn and amount",
+   "scene": "prize-wheel",
+   "ambient": "clicks"
+  },
+  {
+   "square": 35,
+   "type": "transit",
+   "name": "Harbour Station",
+   "shows": "future link to other boards",
+   "scene": "harbour-station",
+   "ambient": "station"
+  },
+  {
+   "square": 37,
+   "type": "fee",
+   "name": "The Tax Office",
+   "shows": "fee paid",
+   "scene": "tax-office",
+   "ambient": "clock"
+  }
+ ]
+}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<!--
+  File:      index.html
+  Location:  app/web/index.html
+  Version:   v0.4.2
+  Purpose:   Single page for the Ootle Game Engine: Game tab (board, Town Square, seats, turn
+             settlement, feed, sales, construction) and Developer tab (contracts, pipeline,
+             decoded state, reconciliation, receipts, errors). Every load and refresh opens the
+             lobby (a black page: title, where you are, Enter with or without sound), then the intro.
+  Notes:     Dumb frontend: every number shown comes from /api/game/{id}/state or /dev.
+             v0.3.0: setup screen after the intro (new game / join an open game), player chip with
+             Release, leaderboard, receiving addresses and clickable transaction ids (Developer tab).
+             v0.4.0: start gate, sound controls, landing scene layer and news stack in the Town Square,
+             Developer panels for health, persisted receipts with detail, and the lot store; scripts
+             pieces.js, scenes.js and audio.js.
+             v0.4.1: the start gate becomes the lobby: a solid black page with the title, one line saying
+             where you are, and Enter with sound / Enter without sound, on every load and refresh.
+             v0.4.2: the lobby is the first element in the body and is not hidden, so the first thing
+             painted is the black lobby (in v0.4.1 the page frame and the board showed before it).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ootle Game Engine</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h">
+  <div class="gatecard">
+    <h1 id="gate-h">OOTLE GAME ENGINE</h1>
+    <p class="gsub" id="gate-line">Connecting…</p>
+    <div class="gbtns"><button class="primary" id="gate-sound">Enter with sound</button><button id="gate-silent">Enter without sound</button></div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand"><div class="mark">◆</div><div>OOTLE GAME ENGINE<small id="brand-sub">Town Square</small></div></div>
+  <div class="gamepick"><span style="color:var(--muted)">Game</span><select id="game-select" aria-label="Game selector"></select></div>
+  <div class="seatcount" title="Seat count read from the Town Square session">Seats <b id="seat-count">–</b> / <span id="seat-cap">–</span></div>
+  <span class="chip" id="chain-chip">CONNECTING</span>
+  <span class="chip" id="live-chip">LIVE ?</span>
+  <span class="chip" id="me-chip">Watching</span>
+  <button class="replaybtn" id="play">Play</button>
+  <button class="replaybtn" id="release" hidden>Release my seats</button>
+  <button class="replaybtn" id="replay">Replay intro</button>
+  <div class="sound"><button class="replaybtn" id="snd" title="Sound on or off">Sound on</button>
+    <input type="range" id="snd-vol" min="0" max="100" value="70" aria-label="Volume" title="Volume">
+    <button class="replaybtn" id="snd-more" title="Sound settings">⚙</button>
+    <div class="sndpanel" id="sndpanel" hidden>
+      <label>Other seats' moves<input type="range" id="snd-others" min="0" max="100" value="50"></label>
+      <label class="chk"><input type="checkbox" id="snd-amb" checked> Ambient sound in landing scenes</label>
+    </div></div>
+  <nav class="tabs" aria-label="View">
+    <button class="on" data-view="game">Game</button>
+    <button data-view="developer">Developer</button>
+  </nav>
+</header>
+
+<section class="view on" id="view-game">
+  <div class="game">
+    <div class="boardwrap">
+      <div class="board" id="board">
+        <div class="stage" id="stage">
+          <div class="ts-watermark">TOWN SQUARE</div>
+          <div class="ts-corner tl"><span id="ts-type"></span> · Game #<span id="ts-game"></span><br><span id="ts-rt"></span></div>
+          <div class="ts-corner tr">House <b id="ts-house"></b></div>
+          <div class="ts-corner bl">Assets owned <b id="ts-owned"></b></div>
+          <div class="ts-corner br">Next <b id="ts-next"></b></div>
+          <div class="turnbar" id="turnbar">
+            <div class="miniring"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="trk" cx="20" cy="20" r="17"></circle><circle class="prog" id="ring" cx="20" cy="20" r="17"></circle></svg><span id="tb-icon"></span></div>
+            <div class="tb-text"><b id="tb-who"></b><span id="tb-timer"></span></div>
+            <button class="roll alt" id="roll-pay" hidden>Pay</button>
+            <button class="roll" id="roll">Roll</button>
+          </div>
+          <div class="layer in" id="idle"></div>
+          <div class="layer" id="act">
+            <div class="who" id="act-who"></div>
+            <div class="dice"><div class="die" id="d1">⚀</div><div class="die" id="d2">⚀</div></div>
+            <div class="landing" id="act-msg"></div>
+            <div class="decide" id="decide"><div class="dq" id="dq"></div><div class="dbtn" id="dbtn"></div></div>
+            <div class="settling" id="settling"></div>
+            <button class="link" id="back">Back to Town Square</button>
+          </div>
+          <div class="news" id="news"></div>
+          <div class="scenewrap" id="scene" hidden>
+            <div class="scenebox" id="scene-svg"></div>
+            <div class="scenepanel"><div class="srow" id="scene-info"></div><div class="opts" id="scene-opts"></div><div class="steps" id="scene-steps"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="msg" id="message">Loading game state…</div>
+      <details class="card" open>
+        <summary>Seats &amp; bankrolls <span class="badge" id="seats-badge"></span></summary>
+        <div id="seats"></div>
+      </details>
+      <details class="card" open id="settle-card">
+        <summary>Turn settlement <span class="badge" id="settle-badge"></span></summary>
+        <div id="settle"></div>
+      </details>
+      <details class="card" open>
+        <summary>Town Square <span class="badge" id="feed-badge"></span></summary>
+        <div class="feed" id="feed"></div>
+      </details>
+      <details class="card" id="offer-card">
+        <summary>Private sales <span class="badge" id="offer-badge"></span></summary>
+        <div id="offer-pending"></div>
+        <div class="field">Asset<select id="offer-asset"></select></div>
+        <div class="field">Offer to<select id="offer-buyer"></select></div>
+        <div class="field">Price (tTARI)<input id="offer-price" placeholder="20.000000" inputmode="decimal"></div>
+        <div class="row"><button id="offer-send">Send offer</button></div>
+      </details>
+      <details class="card">
+        <summary>Property development</summary>
+        <div class="field">Property<select id="build-asset"></select></div>
+        <div class="box" id="build-info">–</div>
+        <div class="row"><button id="build-go">Build improvement</button></div>
+      </details>
+      <details class="card">
+        <summary>Sell to the House</summary>
+        <div class="field">Property<select id="sell-asset"></select></div>
+        <div class="box" id="sell-info">–</div>
+        <div class="row"><button id="sell-go">Sell to the House</button></div>
+      </details>
+      <details class="card" open>
+        <summary>Leaderboard <span class="badge" id="lb-badge"></span></summary>
+        <div id="leaderboard"><div class="box">Loading…</div></div>
+      </details>
+      <details class="card">
+        <summary>Live game state</summary>
+        <dl class="state" id="live-state"></dl>
+      </details>
+    </aside>
+  </div>
+</section>
+
+<section class="view" id="view-developer">
+  <div class="dev-view">
+    <div class="devhead"><div><h2 id="dev-title">Developer</h2><p>Decoded and validated by the backend from on-chain substates. The browser only renders it.</p></div>
+      <button id="dev-refresh" style="margin-left:auto">Refresh</button></div>
+    <div class="devgrid">
+      <div class="panel wide"><h3>Contracts <span class="badge" id="dev-tpl"></span></h3><div class="contracts" id="dev-contracts"></div></div>
+      <div class="panel wide"><h3>Last operation pipeline <span class="badge" id="dev-op"></span></h3><div class="pipe" id="dev-pipe"></div>
+        <details class="sub"><summary>Manifest and variables</summary><pre class="code" id="dev-manifest">No operation yet in this server session.</pre></details></div>
+      <div class="panel"><h3>Town Square · decoded state <span class="badge" id="dev-ver"></span></h3><table class="t" id="dev-session"></table></div>
+      <div class="panel"><h3>Lobby · game types &amp; games</h3><table class="t" id="dev-types"></table><table class="t" id="dev-games" style="margin-top:8px"></table></div>
+      <div class="panel"><h3>Registry · profiles &amp; seat claims</h3><table class="t" id="dev-claims"></table></div>
+      <div class="panel"><h3>Treasury <span class="badge" id="dev-split"></span></h3><table class="t" id="dev-treasury"></table></div>
+      <div class="panel wide"><h3>Reconciliation · last committed operation <span class="badge" id="dev-recon-badge"></span></h3><table class="t" id="dev-recon"></table></div>
+      <div class="panel"><h3>Health</h3><table class="t" id="dev-health"></table></div>
+      <div class="panel"><h3>Lot store <span class="badge" id="dev-lots-badge"></span></h3><div class="scrollbox"><table class="t" id="dev-lots"></table></div></div>
+      <div class="panel wide"><h3>Receipts · persisted <span class="badge" id="dev-verif"></span><span class="badge" id="dev-rc-badge"></span>
+        <label class="chk"><input type="checkbox" id="dev-unverified"> UNVERIFIED only</label></h3>
+        <p class="hint">Click a row to see its verification reads, state differences, pipeline steps, manifest and news events.</p>
+        <div class="scrollbox tall"><table class="t" id="dev-receipts"></table></div>
+        <div id="dev-receipt" class="receipt"></div></div>
+      <div class="panel"><h3>Last structured error</h3><pre class="code" id="dev-error">None in this page session.</pre></div>
+      <div class="panel"><h3>Transaction inspect</h3><div class="row"><input id="dev-txid" placeholder="transaction id · click one in Receipts"><button id="dev-inspect" style="flex:0 0 auto">Inspect</button><button id="dev-txcopy" style="flex:0 0 auto" title="Copy transaction id">⧉</button></div><pre class="code" id="dev-txout"></pre></div>
+      <div class="panel wide"><h3>Accounts · receiving addresses <button id="dev-addr-toggle" style="margin-left:auto">Show addresses</button></h3>
+        <p class="hint">Send tTARI to any of these from any wallet. The main House funds every game House (top-ups) and every regeneration.</p>
+        <table class="t" id="dev-addr"></table></div>
+      <div class="panel wide"><h3>Raw substates</h3><details class="sub"><summary>Show wallet substates.get responses</summary><pre class="code" id="dev-raw"></pre></details></div>
+    </div>
+  </div>
+</section>
+
+<div class="setup" id="setup" role="dialog" aria-modal="true" aria-labelledby="setup-h">
+  <div class="setupcard"><h2 id="setup-h">How do you want to play?</h2><div id="setup-body"></div></div>
+</div>
+
+<div class="pop" id="pop"><button class="x ghost" id="pop-x">✕</button><h3 id="pop-h"></h3><div class="kv" id="pop-kv"></div></div>
+<script src="/pieces.js"></script>
+<script src="/scenes.js"></script>
+<script src="/audio.js"></script>
+<script src="/intro.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
+<!--
+  File:      index.html
+  Location:  app/web/index.html
+  Created:   2026-11-16 04:06:01 UTC
+-->

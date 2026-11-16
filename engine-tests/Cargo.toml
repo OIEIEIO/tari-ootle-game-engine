@@ -1,0 +1,23 @@
+# Ootle Game Engine | engine-tests/Cargo.toml
+# Version: v0.3.0
+# Engine-level tests: compiles the four templates to WASM and runs them in the Tari engine
+# test harness (tari_template_test_tooling). Run: cd engine-tests && cargo test -- --test-threads=1
+[package]
+name = "ootle_engine_tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+
+[dev-dependencies]
+tari_template_test_tooling = "=0.53.4"
+tari_template_lib = "0.40"
+ootle_town_square = { path = "../contracts/town_square" }
+ootle-game-engine-app = { path = "../app" }
+serde = "1"
+serde_json = "1"
+tari_transaction_manifest = "=0.53.4"
+tari_ootle_common_types = "=0.53.4"
+tari_bor = "0.17"
+# End of engine-tests/Cargo.toml

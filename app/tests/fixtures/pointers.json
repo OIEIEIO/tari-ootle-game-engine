@@ -1,0 +1,80 @@
+{
+  "engine_version": "0.1.0",
+  "game_types": [
+    {
+      "id": 1,
+      "name": "Town Square Classic",
+      "params": {
+        "buyback_pct": 80,
+        "fee_amount": 1000000,
+        "go_reward": 20000000,
+        "hotel_cost": 15000000,
+        "house_cost": 5000000,
+        "penalty_amount": 2000000,
+        "shop_fee": 5000000,
+        "square_reward": 2000000,
+        "storage_fee": 2000000
+      },
+      "template": "f28fb058cf0ba12905b76b99368ba797ba4a58b6f5aa53d6693883c87b60bcb8"
+    }
+  ],
+  "games": [
+    {
+      "capacity": 4,
+      "chance": "component_fde71d0a26ecfca7bab58a32282378c8239e466fa1fe18453767286e2a3ccc3c",
+      "community": "component_44317f7c8b097650d7c968110372880beee16db7f7f34c963bb29c9cdf0441a8",
+      "house": "component_fd6ed84abbd5e30c51d39552a041df263013f05ddae6173c8ffb688fd117bc9b",
+      "house_account_name": "OGE-test-house",
+      "id": 1,
+      "seats": [
+        {
+          "account_name": "OGE-test-seat1",
+          "component": "component_7f605d71b52c10fd34a36db93bd6a4e5a6681423dd1d2834e4de647f7fb02948",
+          "key_index": 19,
+          "seat": 1
+        },
+        {
+          "account_name": "OGE-test-seat2",
+          "component": "component_e641045f6f386af936d4902b7d40925b0e8aaea2b934eb3c9f2df47d4eb62262",
+          "key_index": 20,
+          "seat": 2
+        },
+        {
+          "account_name": "OGE-test-seat3",
+          "component": "component_9a283aba821923241f4a57e6d790e8f71ad20ecea3d7d6198dfdd47f9234945d",
+          "key_index": 21,
+          "seat": 3
+        },
+        {
+          "account_name": "OGE-test-seat4",
+          "component": "component_35f66d2bfe646cb02498b2a404d4bc7bb8a6821b339749010a1362f20ae3dba1",
+          "key_index": 22,
+          "seat": 4
+        }
+      ],
+      "session": {
+        "component": "component_a540be97ac4d2773ab4130bfa97b4bb67a8a269f7102fbeba8068a14344f9906",
+        "template": "f28fb058cf0ba12905b76b99368ba797ba4a58b6f5aa53d6693883c87b60bcb8"
+      },
+      "treasury_mode": "separate",
+      "type_id": 1
+    }
+  ],
+  "lobby": {
+    "component": "component_56d5c257cda0c6974cfb56817d3228c6fe070a9d2706fadf20e81544cc9a7d59",
+    "template": "9b67817e9989217bbbe9f0e612b57057b3669c503a39bc678f1d56e9e91c7261"
+  },
+  "network": "Local Ootle Swarm",
+  "registry": {
+    "component": "component_d903442cec0f38cc18917cfe9db6fa0fe935cfd872765c81517666cdbf00d1fd",
+    "template": "387e1f0def89daf77c5fb9ed890669cdd37ad9b2ea988aadf15be0aca9feb0a9"
+  },
+  "resource": "resource_0101010101010101010101010101010101010101010101010101010101010101",
+  "treasury": {
+    "component": "component_0036f719af76d31af80c88ebe03845a8f095bc860bf7e4d9477a76f8a5244671",
+    "global_chance": "component_00",
+    "global_community": "component_00",
+    "global_house": "component_00",
+    "template": "91f814c72f17afe9b450affa9640f801aa5e300f5915a24ec05581caebe9a314"
+  }
+}

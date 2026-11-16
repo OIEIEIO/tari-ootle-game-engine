@@ -1,0 +1,259 @@
+{
+  "network": "Local Ootle Swarm",
+  "engine_version": "0.3.0",
+  "resource": "resource_0101010101010101010101010101010101010101010101010101010101010101",
+  "operator_account_name": "OGE-6df4b761-global_house",
+  "registry": {
+    "component": "component_82a6930f6b6f926d67245ab2ce4050fdf3fcdfac2c0c4105170bda9dd031bda6",
+    "template": "ceab813d670ef23ccfcff7f025c0c4c7040717c69c09209501b10b31ced6057f"
+  },
+  "treasury": {
+    "component": "component_70a86af258c6c36512ee11651d67d961e35e2b3475a9935673284fcbfbb09f88",
+    "template": "827150d540f766379b3f437bd69e80e339e4968d60d4273ab6671b2ef10ff4e4",
+    "global_house": "component_eb78908c1b66b1074f496c42688dce6b29f5fc2ab5f7ffc941018eabcb9878ae",
+    "global_community": "component_3dc19ea69b7e0bfa36a590e9336f9f25a3eeaee99b18f35e505047ff90e592a6",
+    "global_chance": "component_b0d62a4d295dbb3da0be306990962957240a46ad7309cdedcd18166f5911702c"
+  },
+  "lobby": {
+    "component": "component_3b3e1e9676d4c76ae2a4dce0a86f4ef590c674df59990116bdb50826a25c098f",
+    "template": "46256b2e4a29475f29d4913a618bef84d4af323ed4a19071699d8624df4da89b"
+  },
+  "game_types": [
+    {
+      "id": 1,
+      "name": "Town Square Classic",
+      "template": "28c44e4790e8d5fa3ce2ec40bf9973e868d69d494302d9925457707913da8141",
+      "params": {
+        "go_reward": 20000000,
+        "square_reward": 2000000,
+        "fee_amount": 1000000,
+        "penalty_amount": 2000000,
+        "shop_fee": 5000000,
+        "storage_fee": 2000000,
+        "house_cost": 5000000,
+        "hotel_cost": 15000000,
+        "buyback_pct": 80
+      },
+      "economics": {
+        "go_floor": 20000000,
+        "go_scaled": false,
+        "rent_fee_bps": 0,
+        "build_on_landing": true,
+        "fee_amount": 1000000,
+        "penalty_amount": 2000000
+      }
+    }
+  ],
+  "games": [
+    {
+      "id": 1,
+      "type_id": 1,
+      "capacity": 4,
+      "session": {
+        "component": "component_920a09ba173ad0572acef5b85c00f12199137cef0facbefe4180a9a562895ebe",
+        "template": "28c44e4790e8d5fa3ce2ec40bf9973e868d69d494302d9925457707913da8141"
+      },
+      "treasury_mode": "separate",
+      "house": "component_0b1a865ef22d456c7f445f604ba248723b7112ae82d6db1d4fb60f129e6f77b4",
+      "community": "component_3f810e1dd9be0c5e7a93d509da7fa343198768249ec94a513de96a384f949c53",
+      "chance": "component_8ea547459d34a487158573df6e887b5d45a36e9949c826f38fe0928d98b550ab",
+      "house_account_name": "OGE-6df4b761-g1_house",
+      "community_account_name": "OGE-6df4b761-g1_community",
+      "chance_account_name": "OGE-6df4b761-g1_chance",
+      "seats": [
+        {
+          "seat": 1,
+          "account_name": "OGE-6df4b761-g1_seat1",
+          "component": "component_4acb75a8fac2d7e1b85cba1369128513108e6b38fa5648793792a73de3149777",
+          "key_index": 29
+        },
+        {
+          "seat": 2,
+          "account_name": "OGE-6df4b761-g1_seat2",
+          "component": "component_65963a5807118e578f69190be0596e3616fad057ec7d800d80e7ce781324be15",
+          "key_index": 30
+        },
+        {
+          "seat": 3,
+          "account_name": "OGE-6df4b761-g1_seat3",
+          "component": "component_eef9f3c3db88521009cbea3818e431c67a72bca640e22c2d2fef085868a92816",
+          "key_index": 31
+        },
+        {
+          "seat": 4,
+          "account_name": "OGE-6df4b761-g1_seat4",
+          "component": "component_0021c4f0a8cc6cfab681c3bfa0e2f9cb72d65189177380fe09a5aecd7f1406c7",
+          "key_index": 32
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type_id": 1,
+      "capacity": 4,
+      "session": {
+        "component": "component_f881c769facfcba7836f7b91ca2da846887ea3bf0e163f5d67f4e893280a8cb0",
+        "template": "28c44e4790e8d5fa3ce2ec40bf9973e868d69d494302d9925457707913da8141"
+      },
+      "treasury_mode": "separate",
+      "house": "component_38f296d6bbf91b1100f788e1274528fe0113513a795604d773313e29c1e341c4",
+      "community": "component_618e71930e6c212c1b45cd9fa4d7801037b02e30c1347472772795387d368c53",
+      "chance": "component_4425c394fa11344743df0b4937e06d980811f9219a9f09571bf522c760e3880d",
+      "house_account_name": "OGE-6df4b761-g2_house",
+      "community_account_name": "OGE-6df4b761-g2_community",
+      "chance_account_name": "OGE-6df4b761-g2_chance",
+      "seats": [
+        {
+          "seat": 1,
+          "account_name": "OGE-6df4b761-g2_seat1",
+          "component": "component_14ab051add5825e66c9553c4fb73192a7d66b8201ae4ccca58e6317e0f7a423b",
+          "key_index": 36
+        },
+        {
+          "seat": 2,
+          "account_name": "OGE-6df4b761-g2_seat2",
+          "component": "component_8cba6c7b25c7bf8dee759969c8b24325a7c1943e2a4ce9d7bdd0d5e02dab6088",
+          "key_index": 37
+        },
+        {
+          "seat": 3,
+          "account_name": "OGE-6df4b761-g2_seat3",
+          "component": "component_e946f26c640389db20042e72b2b2c3d464fb37360049b69a12e17235d2f5524d",
+          "key_index": 38
+        },
+        {
+          "seat": 4,
+          "account_name": "OGE-6df4b761-g2_seat4",
+          "component": "component_824f24eb29d2433c150c771fcea68888097723d03e7a7bfd17fc1afcd5896631",
+          "key_index": 39
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type_id": 1,
+      "capacity": 4,
+      "session": {
+        "component": "component_0944dab6de6f5056db99d507e62182b4216f726e10892022bb8c35c629f40bf6",
+        "template": "28c44e4790e8d5fa3ce2ec40bf9973e868d69d494302d9925457707913da8141"
+      },
+      "treasury_mode": "separate",
+      "house": "component_7227f8e142260ca12e631cc9d2c4b1fed24fa40d04ce0e7b94298b1ae8d5b649",
+      "community": "component_e62b4063acc97f44b540e544adcc5d5929361dc93cf54993d31eedfd98ef5765",
+      "chance": "component_1e0357717cfa068268962d8005bcaba6237cf56ebf423294ef0480405eccfa42",
+      "house_account_name": "OGE-6df4b761-g3_house",
+      "community_account_name": "OGE-6df4b761-g3_community",
+      "chance_account_name": "OGE-6df4b761-g3_chance",
+      "seats": [
+        {
+          "seat": 1,
+          "account_name": "OGE-6df4b761-g3_seat1",
+          "component": "component_0b590c1cd93d5673808e1dcf321f72479b9f31e5abd1ea70bbad84f19a58842e",
+          "key_index": 43
+        },
+        {
+          "seat": 2,
+          "account_name": "OGE-6df4b761-g3_seat2",
+          "component": "component_b49b44c8309422c7ef624ba7ee11f84f7e5b1b1df37330e3ff8237c743e97551",
+          "key_index": 44
+        },
+        {
+          "seat": 3,
+          "account_name": "OGE-6df4b761-g3_seat3",
+          "component": "component_ea7786b0719cf94369ad5a46a69d0dce0f85ed506b24897a19aa26c060133046",
+          "key_index": 45
+        },
+        {
+          "seat": 4,
+          "account_name": "OGE-6df4b761-g3_seat4",
+          "component": "component_7b651e0e182e6cf8200de13a3738c1fd6efe90bf81b99b20481a16e0b2e59a6b",
+          "key_index": 46
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type_id": 1,
+      "capacity": 4,
+      "session": {
+        "component": "component_0cb831444f0f493c23b1baa5569958e46569e89a3ce386a227a3356c269cd6bd",
+        "template": "28c44e4790e8d5fa3ce2ec40bf9973e868d69d494302d9925457707913da8141"
+      },
+      "treasury_mode": "separate",
+      "house": "component_f6a32d618360730348811ee0afdbddb835d62a05f4df51cc8ff46f61939b714f",
+      "community": "component_16acfd813a3382a3b3759ead150387529b33ea73d7b35ce5dc6337d9eaeb9ddf",
+      "chance": "component_898668b7c0353450a91264d6adf5d89d7f67befe7f29189eeddca5814a669a9d",
+      "house_account_name": "OGE-6df4b761-g4_house",
+      "community_account_name": "OGE-6df4b761-g4_community",
+      "chance_account_name": "OGE-6df4b761-g4_chance",
+      "seats": [
+        {
+          "seat": 1,
+          "account_name": "OGE-6df4b761-g4_seat1",
+          "component": "component_952707eb4aae93286f5e13ee57202d0fbcb856a868c3947d5dec1cc48c2654d8",
+          "key_index": 50
+        },
+        {
+          "seat": 2,
+          "account_name": "OGE-6df4b761-g4_seat2",
+          "component": "component_fa428076d87a3c4a425ccb0e5ca4c98fc3a960c32ec5ce437a15b68330a51d7a",
+          "key_index": 51
+        },
+        {
+          "seat": 3,
+          "account_name": "OGE-6df4b761-g4_seat3",
+          "component": "component_d52619ec3598acc49184ec230007d68213d39d5b32ecd1281c18260e1c17eae0",
+          "key_index": 52
+        },
+        {
+          "seat": 4,
+          "account_name": "OGE-6df4b761-g4_seat4",
+          "component": "component_89803e2082a250b8a0e801152b39915f6cb8c2ed1db193711c27c42c406bd2e5",
+          "key_index": 53
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type_id": 1,
+      "capacity": 4,
+      "session": {
+        "component": "component_ffeccf0243e3b13a992cea03400fac5be298fe247c0b7d9fc0f59f64b7aa3c8b",
+        "template": "28c44e4790e8d5fa3ce2ec40bf9973e868d69d494302d9925457707913da8141"
+      },
+      "treasury_mode": "separate",
+      "house": "component_57ac2c0fe895b8cd6edae078c4dd2b4cbe0a649accacf31ce66dd3f1bf959595",
+      "community": "component_0765516c943d10258f3d560d8d83e0460a425041e7f946b5db759d8fa9b8c796",
+      "chance": "component_0727c4dfff68d8eac744a431b3bfac10bd52cce54b503e05a8d21a6b6bb1fe4c",
+      "house_account_name": "OGE-6df4b761-g5_house",
+      "community_account_name": "OGE-6df4b761-g5_community",
+      "chance_account_name": "OGE-6df4b761-g5_chance",
+      "seats": [
+        {
+          "seat": 1,
+          "account_name": "OGE-6df4b761-g5_seat1",
+          "component": "component_8f0503020c39ac22ce4574c0e01a22c8a96075627314e9c32387941ed9e7f1b6",
+          "key_index": 57
+        },
+        {
+          "seat": 2,
+          "account_name": "OGE-6df4b761-g5_seat2",
+          "component": "component_ee16258c822054f9842dac3b997145d8efb4f016d30416a936ba41b10b38ea06",
+          "key_index": 58
+        },
+        {
+          "seat": 3,
+          "account_name": "OGE-6df4b761-g5_seat3",
+          "component": "component_d8f221ae691391349f8ed6eef01847f2b3113802f7a2841e073f8dff61b70e7c",
+          "key_index": 59
+        },
+        {
+          "seat": 4,
+          "account_name": "OGE-6df4b761-g5_seat4",
+          "component": "component_e6a533c74cae8a108148c69662b78e97c9a75c9eb845eebadedd3e5f3626b9bd",
+          "key_index": 60
+        }
+      ]
+    }
+  ]
+}

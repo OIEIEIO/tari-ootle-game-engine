@@ -1,0 +1,22 @@
+# Ootle Game Engine | contracts/registry/Cargo.toml
+# Version: v0.1.0
+# Standalone Ootle WASM template crate (cdylib). Built with ./scripts/build-all.sh.
+[package]
+name = "ootle_registry"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+tari_template_lib = "=0.40.1"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+# End of contracts/registry/Cargo.toml

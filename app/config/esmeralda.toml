@@ -1,0 +1,51 @@
+# Ootle Game Engine | app/config/esmeralda.toml
+# Version: v0.4.0
+# Backend-only settings for Esmeralda through the wallet daemon on this server. Wallet tokens never reach the browser.
+# Start with:  OOTLE_CONFIG=config/esmeralda.toml ./scripts/run-app.sh   (set wallet_rpc_url to your wallet daemon port)
+wallet_rpc_url = "http://127.0.0.1:12010/json_rpc"
+network_name = "Esmeralda"
+listen_host = "127.0.0.1"
+port = 3020
+# Deployment pointers written by scripts/deploy_local.py (relative to app/).
+deployment_file = "../deployments/esmeralda.json"
+# Maximum fee per transaction, base units. Each game's House pays that game's fees.
+max_fee = 1000000
+# Decision window shown in the turn bar, seconds. Informational only: nothing happens at zero.
+decision_window_secs = 300
+# Stored backend dice rolls (one per game, round, turn and seat) survive restarts here.
+roll_store = "data/esmeralda/rolls.json"
+
+# ---- v0.3.0 free play ----
+# Cash a seat holds after a reset or regeneration (base units): 20.000000 tTARI.
+seat_start = 20000000
+# Each game House is topped up from the main House to house_float when it falls below
+# house_top_up_below (base units): 100.000000 and 25.000000 tTARI. house_top_up_below = 0 turns top-ups off.
+house_float = 100000000
+house_top_up_below = 25000000
+# Seconds between one AI (or auto-roll) move's confirmation and the next one in the same game.
+ai_move_delay_secs = 5
+# Server-wide cap on AI and auto-roll transactions per minute, all games together. 0 = no cap.
+ai_tx_per_minute = 0
+# AI play strength (base units): buys only if 5.000000 stays after the purchase, builds only if
+# 10.000000 stays after building (the simulated even match against one human builder).
+ai_reserve = 5000000
+ai_build_floor = 10000000
+# A human or open seat that has not moved for this many seconds is passed automatically
+# (rolled and settled with no purchase or building). 0 = off. The agreed value is 300.
+auto_roll_secs = 0
+# Who holds each seat (browser tokens, names, AI seats) and the leaderboard milestones.
+claims_store = "data/esmeralda/claims.json"
+leaderboard_store = "data/esmeralda/leaderboard.json"
+# Stint length, in rounds, recorded on the leaderboard.
+milestone_rounds = 100
+# v0.4.0: verification after an accepted transaction. The state and every balance are read and
+# compared with the plan; while they do not match they are read again, up to this many reads,
+# this many milliseconds apart (1..10 reads, at most 10000 ms).
+reconcile_reads = 4
+reconcile_read_delay_ms = 500
+# v0.4.0: receipts with their verification detail (JSON lines, survive restarts), the business chosen
+# on each owned lot, and the Town Square catalogue (zones, businesses, special squares).
+receipts_store = "data/esmeralda/receipts.jsonl"
+lots_store = "data/esmeralda/lots.json"
+catalogue_file = "config/catalogue.json"
+# End of app/config/esmeralda.toml
