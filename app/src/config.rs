@@ -1,5 +1,5 @@
 //! Ootle Game Engine | app/src/config.rs
-//! Version: v0.4.0
+//! Version: v0.4.5
 //! Startup configuration: app/config/network.toml plus the deployment pointers written by
 //! scripts/deploy_local.py (deployments/local-swarm.json). Read once at start; chain state is
 //! always read live from the wallet.
@@ -8,6 +8,9 @@
 //! Every setting that changes how the server acts on its own defaults to off or to the agreed value.
 //! v0.4.0 adds: reconciliation re-reads (agreed: 4 reads, 500 ms apart, on a balance mismatch only),
 //! the receipts store (JSON lines, survives restarts), the lot store and the Town Square catalogue.
+//! v0.4.5 adds: `balance_refresh` (the `refresh` flag of every balance read; default true, the v0.4.4
+//! behaviour) and `carry_verified_balances` (default true: a transaction's reconciled balances are the
+//! next transaction's starting balances in that game, under the rules in ops.rs; false = v0.4.4).
 
 use serde::{Deserialize, Serialize};
 use std::{fs, path::{Path, PathBuf}};
@@ -26,6 +29,7 @@ fn default_reconcile_delay() -> u64 { 500 }
 fn default_receipts() -> String { "data/receipts.jsonl".into() }
 fn default_lots() -> String { "data/lots.json".into() }
 fn default_catalogue() -> String { "config/catalogue.json".into() }
+fn default_true() -> bool { true }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct NetworkConfig {
@@ -84,6 +88,14 @@ pub struct NetworkConfig {
     /// The Town Square catalogue (relative to app/). v0.4.0.
     #[serde(default = "default_catalogue")]
     pub catalogue_file: String,
+    /// `refresh` sent with every `accounts.get_balances` call. true = the v0.4.4 behaviour. v0.4.5.
+    #[serde(default = "default_true")]
+    pub balance_refresh: bool,
+    /// After a RECONCILED transaction, its verified balances are kept as the starting balances of the
+    /// next transaction in the same game instead of reading them again (ops.rs `Baseline`). false = the
+    /// v0.4.4 behaviour (always read before a transaction). v0.4.5.
+    #[serde(default = "default_true")]
+    pub carry_verified_balances: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -250,4 +262,4 @@ impl Config {
 }
 
 // End of app/src/config.rs
-// Location: app/src/config.rs · Created: 2026-11-16 15:40:30 UTC
+// Location: app/src/config.rs · Created: 2026-11-16 21:06:48 UTC

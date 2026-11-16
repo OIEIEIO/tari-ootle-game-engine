@@ -1,5 +1,5 @@
 # Ootle Game Engine | app/config/esmeralda.toml
-# Version: v0.4.0
+# Version: v0.4.5
 # Backend-only settings for Esmeralda through the wallet daemon on this server. Wallet tokens never reach the browser.
 # Start with:  OOTLE_CONFIG=config/esmeralda.toml ./scripts/run-app.sh   (set wallet_rpc_url to your wallet daemon port)
 wallet_rpc_url = "http://127.0.0.1:12010/json_rpc"
@@ -48,4 +48,12 @@ reconcile_read_delay_ms = 500
 receipts_store = "data/esmeralda/receipts.jsonl"
 lots_store = "data/esmeralda/lots.json"
 catalogue_file = "config/catalogue.json"
+# v0.4.5: refresh flag sent with every balance read (accounts.get_balances). true = the v0.4.4 behaviour.
+balance_refresh = true
+# v0.4.5: after a RECONCILED transaction its verified balances are the next transaction's starting
+# balances in that game (no balance read before that transaction). Not used, and the balances read
+# again, when the previous operation in the game was not reconciled or failed, the session version
+# read before the transaction differs from the verified one, the carried balances are 30 s old or
+# more, or (global treasury mode) any game ran a transaction since. false = the v0.4.4 behaviour.
+carry_verified_balances = true
 # End of app/config/esmeralda.toml

@@ -1,8 +1,12 @@
 //! Ootle Game Engine | app/src/wallet.rs
-//! Version: v0.2.0
+//! Version: v0.4.5
 //! Wallet daemon JSON-RPC client (backend only). Authentication is the v0.6.18 behaviour:
 //! OOTLE_WALLET_COOKIE_PATH when set (read on every call, fails closed), otherwise local Swarm
 //! `auth.request` with no credentials. Tokens never leave this process.
+//! v0.4.5:
+//!   - `owner_key` is cached per account (an account's owner key does not change); errors are not cached;
+//!   - `accounts.get_balances` sends `refresh` from the `balance_refresh` setting (default true, the
+//!     v0.4.4 behaviour) instead of a hard-coded `true`.
 
 use serde_json::{json, Value};
 use std::{collections::HashMap, env, fs, sync::Arc, time::Duration};
@@ -12,16 +16,24 @@ use tokio::sync::Mutex;
 pub struct Wallet {
     client: reqwest::Client,
     url: String,
+    /// `refresh` sent with every `accounts.get_balances` call (v0.4.5).
+    refresh: bool,
     names: Arc<Mutex<HashMap<String, String>>>,
+    /// v0.4.5: owner key per account name or address.
+    keys: Arc<Mutex<HashMap<String, Value>>>,
 }
 
 impl Wallet {
-    pub fn new(url: &str) -> Result<Self, String> {
+    pub fn new(url: &str, refresh: bool) -> Result<Self, String> {
         let client = reqwest::Client::builder().timeout(Duration::from_secs(150)).build().map_err(|e| e.to_string())?;
-        Ok(Self { client, url: url.to_owned(), names: Arc::new(Mutex::new(HashMap::new())) })
+        Ok(Self { client, url: url.to_owned(), refresh, names: Arc::new(Mutex::new(HashMap::new())),
+            keys: Arc::new(Mutex::new(HashMap::new())) })
     }
 
     pub fn url(&self) -> &str { &self.url }
+
+    /// Whether balance reads ask the wallet to refresh (v0.4.5).
+    pub fn refresh(&self) -> bool { self.refresh }
 
     async fn token(&self) -> Result<String, String> {
         if let Some(path) = env::var_os("OOTLE_WALLET_COOKIE_PATH") {
@@ -70,11 +82,16 @@ impl Wallet {
     }
 
     /// The derived key that owns an account, as the `{"Derived":{...}}` object the wallet expects.
+    /// v0.4.5: cached per `name_or_address` after the first successful read.
     pub async fn owner_key(&self, name_or_address: &str) -> Result<Value, String> {
+        if let Some(k) = self.keys.lock().await.get(name_or_address) { return Ok(k.clone()); }
         let r = self.rpc("accounts.get", json!({"name_or_address": name_or_address})).await?;
         for p in ["/account/owner_key_id", "/owner_key_id"] {
             if let Some(k) = r.pointer(p) {
-                if k.get("Derived").is_some() { return Ok(k.clone()); }
+                if k.get("Derived").is_some() {
+                    self.keys.lock().await.insert(name_or_address.to_owned(), k.clone());
+                    return Ok(k.clone());
+                }
             }
         }
         Err(format!("wallet did not return a derived owner key for {name_or_address}"))
@@ -83,7 +100,7 @@ impl Wallet {
     /// Balance of `resource` in base units. A missing resource entry is a zero balance.
     pub async fn balance(&self, address: &str, resource: &str) -> Result<u64, String> {
         let name = self.account_name(address).await?;
-        let r = self.rpc("accounts.get_balances", json!({"account": name, "refresh": true})).await?;
+        let r = self.rpc("accounts.get_balances", json!({"account": name, "refresh": self.refresh})).await?;
         let list = r.get("balances").and_then(Value::as_array).ok_or_else(|| format!("{name}: missing balances list"))?;
         let entry = list.iter().find(|b| b.get("resource_address").and_then(Value::as_str) == Some(resource));
         match entry.and_then(|b| b.get("balance")) {
@@ -103,4 +120,4 @@ impl Wallet {
 }
 
 // End of app/src/wallet.rs
-// Location: app/src/wallet.rs · Created: 2026-11-15 23:05:29 UTC
+// Location: app/src/wallet.rs · Created: 2026-11-16 21:06:48 UTC

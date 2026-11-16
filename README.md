@@ -1,5 +1,5 @@
-<!-- Ootle Game Engine | README.md · Version: v0.4.4 -->
-# Ootle Game Engine v0.4.4
+<!-- Ootle Game Engine | README.md · Version: v0.4.5 -->
+# Ootle Game Engine v0.4.5
 
 A free-play demonstration of a blockchain game engine on Tari Ootle: four Ootle templates, a Rust
 backend that signs for every seat, and a single game page. The House is funded by the operator; there
@@ -13,6 +13,29 @@ is no buy-in and no cash-out. Independent of the v0.6.18 game and of every earli
 | Town Square catalogue: zones, businesses, special squares | `app/config/catalogue.json` |
 | Engine harness tests | `engine-tests/` |
 | Monte Carlo economics | `tools/econ-sim/` (v0.3.2) |
+
+## What changed in v0.4.5
+
+Backend only (page, rules, contracts, deploy script, manifests and verification rules unchanged).
+Fewer walletd calls in a transaction's own path (`app/src/ops.rs` `run`, `app/src/wallet.rs`):
+- **Owner keys cached.** `owner_key` (`accounts.get`) is read once per account and then kept; errors
+  are not kept. v0.4.4 made 2 such calls per transaction (3 for a reset, plus 1 per top-up).
+- **Verified balances carried forward** (`carry_verified_balances`, default true). After a RECONCILED
+  transaction, the balances of its matching verification read become the next transaction's starting
+  balances in that game, so that transaction does not read the seven balances again before it submits.
+  They serve one transaction at most and are used only when the session version read fresh before that
+  transaction equals the verified one and they are less than 30 s old. Nothing is carried after an
+  operation that was not reconciled (UNVERIFIED, REJECTED, timed out, any error), and in global treasury
+  mode no game keeps carried balances after any transaction. The House top-up still re-reads them.
+  A transfer from outside the game into one of the seven accounts inside those 30 s, with no game
+  transaction in between, is not seen: that transaction's receipt reports `balances_differ`
+  (UNVERIFIED), and the next transaction reads fresh. `false` restores the v0.4.4 behaviour.
+- **Balance refresh is a setting** (`balance_refresh`, default true = v0.4.4): the `refresh` flag of
+  every `accounts.get_balances` call, including the verification reads.
+- The pipeline steps are the same as v0.4.4; the Balances step now ends with where the starting
+  balances came from (`carried from receipt N (...)` or `read: <reason>`). For a turn the starting
+  balance read falls in the Roll step's time, for other operations in the Prepare step's time.
+- `/api/system/info`, the Developer tab (`verification`) and the start log show both settings.
 
 ## What changed in v0.4.4
 
@@ -182,7 +205,7 @@ pointers). Only the backend and the page change.
 v0.3.0 gave Town Square new state fields, so the templates are published again and the 5 games are new.
 The deploy script refuses a journal written by an earlier version. Move the old `deployments/`
 folder aside (or pass new `--state` / `--pointers` names); the earlier deployment is not changed.
-v0.4.0 to v0.4.4 change no contract: keep the v0.3.0 `deployments/` folder (and `app/data/`) and start the new backend.
+v0.4.0 to v0.4.5 change no contract: keep the v0.3.0 `deployments/` folder (and `app/data/`) and start the new backend.
 
 ## Desktop: local Swarm (wallet on 127.0.0.1:12010)
 
@@ -221,7 +244,8 @@ Developer tab. The backend listens on 127.0.0.1 only; publish it through your re
 3. **Decision** (in the landing scene). None: settles automatically. Unowned asset: Buy (choosing one
    of the zone's three businesses) or Pass. Own asset: Build or Skip.
    Short of funds: recovery sale inside the turn. Short with nothing to sell: Regenerate.
-4. **Settle**: top-up if needed → dry run → submit → wait → verification reads (state check and
+4. **Settle**: starting balances (carried from the last reconciled transaction or read, v0.4.5) →
+   top-up if needed → dry run → submit → wait → verification reads (state check and
    reconciliation, read again only while they differ, up to 4 reads 500 ms apart) → receipt.
 
 Signing: the game House key seals and pays the fee; the acting seat's key (and for a reset the
@@ -234,4 +258,4 @@ runs confirm: the faucet call and account creation on Esmeralda; the House top-u
 `reset_seat` with the operator key in `signing_key_ids`; 5 games settling in parallel through one
 wallet daemon; and `accounts.get` returning an `otl_` receiving address for the Developer tab.
 
-<!-- End of README.md · Location: README.md · Created: 2026-11-16 04:06:01 UTC -->
+<!-- End of README.md · Location: README.md · Created: 2026-11-16 21:21:53 UTC -->

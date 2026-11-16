@@ -1,5 +1,5 @@
 //! Ootle Game Engine | app/src/main.rs
-//! Version: v0.4.4
+//! Version: v0.4.5
 //! Axum server on 127.0.0.1: serves the single game page and a JSON API over the backend.
 //! Reads are always live from the wallet; writes need OOTLE_ENABLE_LIVE_TESTS=1.
 //! v0.3.0: seat claiming (player token in the `x-player-token` header; one game per token),
@@ -9,6 +9,8 @@
 //! receipts with their verification detail (/api/game/{id}/receipts), the lot store
 //! (/api/game/{id}/lots), a purchase's business choice on /turn, and the page's new scripts
 //! (pieces.js, scenes.js, audio.js).
+//! v0.4.5: /api/system/info, the Developer tab and the start log show `balance_refresh` and
+//! `carry_verified_balances`.
 //! Run from app/: cargo run --release   (config/network.toml, deployment pointers from the deploy script)
 
 use axum::{
@@ -81,6 +83,7 @@ async fn info(State(app): State<Shared>) -> Response {
         "seat_start_ttari": board::ttari(n.seat_start), "house_float_ttari": board::ttari(n.house_float),
         "house_top_up_below_ttari": board::ttari(n.house_top_up_below), "milestone_rounds": n.milestone_rounds,
         "reconcile_reads": n.reconcile_reads, "reconcile_read_delay_ms": n.reconcile_read_delay_ms,
+        "balance_refresh": n.balance_refresh, "carry_verified_balances": n.carry_verified_balances,
         "receipts_store": n.receipts_store, "lots_store": n.lots_store, "catalogue_file": n.catalogue_file,
         "started_at": app.started_at,
         "seat_colours": board::SEAT_COLOURS, "pieces": board::PIECES,
@@ -334,6 +337,7 @@ async fn dev(State(app): State<Shared>, Path(id): Path<u64>) -> Response {
         "registry": snap.registry, "balances": bal.as_ref().ok(), "balances_error": bal.err(),
         "pipeline": pipeline, "receipts": receipts,
         "verification": {"reconcile_reads": n.reconcile_reads, "reconcile_read_delay_ms": n.reconcile_read_delay_ms,
+            "balance_refresh": n.balance_refresh, "carry_verified_balances": n.carry_verified_balances,
             "receipts_store": n.receipts_store},
         "raw": snap.raw.iter().map(|(k, v)| json!({"contract": k, "substate": v})).collect::<Vec<_>>()}))
 }
@@ -394,6 +398,7 @@ async fn main() {
     tracing::info!(%addr, live = ops::live_enabled(), network = %n.network_name, games = app.cfg.game_ids().len(),
         auto_roll_secs = n.auto_roll_secs, ai_move_delay_secs = n.ai_move_delay_secs, ai_tx_per_minute = n.ai_tx_per_minute,
         reconcile_reads = n.reconcile_reads, reconcile_read_delay_ms = n.reconcile_read_delay_ms,
+        balance_refresh = n.balance_refresh, carry_verified_balances = n.carry_verified_balances,
         receipts_loaded = app.receipts.lock().await.len(), "Ootle Game Engine listening");
     ai::spawn(app.clone());
     let listener = tokio::net::TcpListener::bind(addr).await.expect("bind");
@@ -401,4 +406,4 @@ async fn main() {
 }
 
 // End of app/src/main.rs
-// Location: app/src/main.rs · Created: 2026-11-16 15:40:30 UTC
+// Location: app/src/main.rs · Created: 2026-11-16 21:06:48 UTC

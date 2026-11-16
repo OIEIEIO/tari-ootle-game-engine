@@ -1,8 +1,14 @@
-<!-- Ootle Game Engine | VALIDATION.md · Version: v0.4.4 -->
+<!-- Ootle Game Engine | VALIDATION.md · Version: v0.4.5 -->
 # Validation performed in the build environment
 
 | Check | Command | Result |
 |---|---|---|
+| v0.4.5: backend builds with no warnings; backend unit tests (adds the carried-balances rule: same session version and under 30 s only) | `cd app && cargo build --release && cargo test --lib` | 0 warnings · 21 passed |
+| v0.4.5: engine tests for the backend's manifests and plans | `cd engine-tests && cargo test --test backend_plans` | 8 passed |
+| v0.4.5: deploy script unit tests, rules unit tests (unchanged code) | `python3 -I -m unittest discover -s tests` · `cd contracts/town_square && cargo test --lib` | 23 passed · 10 passed |
+| v0.4.5: walletd calls per turn, v0.4.4 and v0.4.5 binaries, fake wallet behind a counting proxy, one seat claimed, `reconcile_reads = 1`, two turns | scratch harness, not shipped | v0.4.4: 2 `accounts.get` on each turn · v0.4.5: 2 on the first turn, 0 on the second; `get_balances` 14 per turn on both (the fake wallet never reconciles, so nothing is carried; the Balances step reads `read: none carried`) |
+| v0.4.5: `balance_refresh = false` and `carry_verified_balances = false` | same harness | `get_balances` sent with `refresh: false`; Balances step reads `read: carry_verified_balances off`; both settings shown on the Developer tab |
+| v0.4.5: carried balances used by a transaction after a RECONCILED one, and the time saved | not run here: needs a wallet whose state changes (local Swarm or Esmeralda) | Not verified |
 | v0.4.4: backend builds with no warnings; backend unit tests | `cd app && cargo build --release && cargo test --lib` | 0 warnings · 20 passed |
 | v0.4.4: walletd calls and page times, v0.4.3 and v0.4.4 binaries, fake wallet behind a proxy adding 300 ms per call, one game, one player claimed (AI driver active), 60 s of the page's polling (state every 3 s, game list and leaderboard every 15 s) | scratch harness, not shipped | v0.4.3: 594 calls, state 1.22 s to 2.24 s · v0.4.4: 22 calls, state 0.001 s (1.22 s once per 30 s) |
 | v0.4.4: a transaction against a live wallet with the shared read | not run here | Not verified |
@@ -40,4 +46,4 @@ browser; the build environment has no audio device), the live wallet on the Swar
 and the re-read behaviour against the live wallet that produced turns 297 and 301. The harness
 engine (0.53.4) may differ from the live builds.
 
-<!-- End of VALIDATION.md · Location: VALIDATION.md · Created: 2026-11-16 04:06:01 UTC -->
+<!-- End of VALIDATION.md · Location: VALIDATION.md · Created: 2026-11-16 21:21:53 UTC -->

@@ -1,5 +1,5 @@
 //! Ootle Game Engine | app/src/ops.rs
-//! Version: v0.4.4
+//! Version: v0.4.5
 //! Application state and the write pipeline. One on-chain transaction per request:
 //!   live gate → seat check → per-game lock → read state + templates → balances → House top-up
 //!   when low → plan (sim.rs) → balance checks → signer keys → dry run → submit → wait result →
@@ -27,6 +27,17 @@
 //!   changes then (or by outside transfers to its accounts): the read is kept until the next transaction
 //!   in that game invalidates it, or until it is READ_MAX_AGE old. The page, game list, leaderboard and
 //!   AI driver use it; a transaction itself (`run`, `verify`) and `roll` still read fresh.
+//! v0.4.5: verified balances carried forward (`Baseline`). After a RECONCILED transaction the
+//!   balances of its successful verification read are kept for that game and used as the next
+//!   transaction's starting balances (b0) instead of reading the seven accounts again. They are taken
+//!   (removed) when `execute` starts, so they serve one transaction at most, and are used only when the
+//!   session version read fresh before that transaction equals the verified one and they are less than
+//!   READ_MAX_AGE old; otherwise b0 is read as in v0.4.4. Nothing is carried after an operation that
+//!   was not reconciled (UNVERIFIED, REJECTED, timed out, any error); in global treasury mode every
+//!   game's carried balances are dropped after any transaction (the pools are shared). The House top-up
+//!   still re-reads b0. `carry_verified_balances = false` restores the v0.4.4 behaviour. The Balances
+//!   step records where b0 came from. The state reads, dry run, submit, wait and verification reads are
+//!   unchanged.
 //! Signing: the game House key seals and pays the fee; the acting seat's key (and, for a reset, the
 //! operator key) is in `signing_key_ids`, which puts those badges in scope for the contract checks.
 
@@ -128,6 +139,20 @@ pub struct App {
     /// v0.4.4: per game, the shared read (state and balances) and when it was taken. The mutex also
     /// makes callers that arrive during a read wait for it instead of reading again.
     reads: HashMap<u64, Arc<Mutex<Option<(Instant, Snapshot, Balances)>>>>,
+    /// v0.4.5: per game, the verified balances of its last RECONCILED transaction (see `Baseline`).
+    baselines: Mutex<HashMap<u64, Baseline>>,
+}
+
+/// v0.4.5: balances verified by a RECONCILED transaction, kept as the next transaction's b0.
+#[derive(Clone, Debug)]
+struct Baseline {
+    /// When the verification read that matched was completed.
+    at: Instant,
+    /// The session component version of that verification read.
+    version: Value,
+    balances: Balances,
+    /// The receipt that verified them.
+    receipt: u64,
 }
 
 /// v0.4.4: the longest a shared read is kept without a transaction in its game (outside transfers,
@@ -211,7 +236,7 @@ fn load_receipts(path: &PathBuf) -> Result<Vec<Receipt>, String> {
 
 impl App {
     pub fn new(cfg: Config) -> Result<Self, String> {
-        let wallet = Wallet::new(&cfg.network.wallet_rpc_url)?;
+        let wallet = Wallet::new(&cfg.network.wallet_rpc_url, cfg.network.balance_refresh)?;
         let catalogue = Catalogue::load(&cfg.catalogue_path())?;
         let rolls = RollStore::open(cfg.roll_store_path())?;
         let claims = Claims::open(cfg.claims_path())?;
@@ -228,7 +253,7 @@ impl App {
             lots: Mutex::new(lots), locks, operator_lock: Mutex::new(()), receipts: Mutex::new(receipts),
             receipt_seq: Mutex::new(seq), receipts_path, pipelines: Mutex::new(HashMap::new()),
             seen: Mutex::new(HashMap::new()), last_auto: Mutex::new(HashMap::new()), auto_window: Mutex::new(VecDeque::new()),
-            driver_error: Mutex::new(HashMap::new()), started_at: dice::now(), reads })
+            driver_error: Mutex::new(HashMap::new()), started_at: dice::now(), reads, baselines: Mutex::new(HashMap::new()) })
     }
 
     /// v0.4.4: the game's state and balances from the shared read, reading the chain only when there is
@@ -327,15 +352,25 @@ impl App {
         let _guard = lock.try_lock().map_err(|_| "operation in progress".to_string())?;
         let mut rec = Rec { p: Pipeline { game, operation: req.name().into(), actor: actor.label().into(),
             started_at: dice::now(), ..Default::default() }, t: Instant::now() };
-        let r = self.run(game, req, &actor, &mut rec).await;
+        // v0.4.5: the carried balances serve this transaction at most; only a RECONCILED outcome sets new ones.
+        let carried = if self.cfg.network.carry_verified_balances { self.baselines.lock().await.remove(&game) } else { None };
+        let mut next = None;
+        let r = self.run(game, req, &actor, &mut rec, carried, &mut next).await;
         // v0.4.4: whatever the outcome, the shared read may no longer match the chain.
         self.invalidate(game).await;
+        {
+            let mut b = self.baselines.lock().await;
+            // v0.4.5: in global treasury mode the pools are shared, so no game's carried balances survive.
+            if !self.cfg.all_separate() { b.clear(); }
+            if let Some(n) = next { b.insert(game, n); }
+        }
         if let Err(e) = &r { rec.step("Stopped", "error", e.reason.clone()); }
         self.pipelines.lock().await.insert(game, rec.p);
         r
     }
 
-    async fn run(&self, game: u64, req: Request, actor: &Actor, rec: &mut Rec) -> Result<Value, OpError> {
+    async fn run(&self, game: u64, req: Request, actor: &Actor, rec: &mut Rec, carried: Option<Baseline>,
+                 next: &mut Option<Baseline>) -> Result<Value, OpError> {
         let cfg = &self.cfg;
         let before = chain::read(cfg, &self.wallet, game).await?;
         let acting = req.seat(&before.session);
@@ -345,7 +380,11 @@ impl App {
         rec.step("Read state", "done", format!("session version {} · round {} · turn {} · active seat {} · acting seat {acting} · templates verified",
             before.session_version, before.session.round, before.session.turn_count, before.session.active));
 
-        let mut b0 = chain::balances(&self.wallet, &before.game, &before.session.resource).await?;
+        // v0.4.5: b0 from the carried verified balances when they still hold, otherwise read as in v0.4.4.
+        let (mut b0, mut b0_source) = match usable_baseline(carried, &before.session_version, cfg.network.carry_verified_balances) {
+            Ok(x) => x,
+            Err(why) => (chain::balances(&self.wallet, &before.game, &before.session.resource).await?, format!("read: {why}")),
+        };
         let s = &before.session;
 
         let mut business: Option<String> = None;
@@ -391,6 +430,7 @@ impl App {
             let tx = self.top_up(&before, amount).await?;
             rec.step("House top-up", "done", format!("main House → game House {} tTARI · {tx}", board::ttari(amount)));
             b0 = chain::balances(&self.wallet, &before.game, &s.resource).await?;
+            b0_source = "read after the House top-up".into();
         }
         let seat_bal = b0.seats[usize::from(plan.signer() - 1)];
         let seat_need = plan.seat_needed();
@@ -401,7 +441,7 @@ impl App {
         if b0.house < need {
             return Err(format!("house cannot cover the payout and fee reserve [available_base_units={}, required_base_units={need}]", b0.house).into());
         }
-        rec.step("Balances", "done", format!("seat {seat_bal} ≥ {seat_need} · house {} ≥ {need}", b0.house));
+        rec.step("Balances", "done", format!("seat {seat_bal} ≥ {seat_need} · house {} ≥ {need} · starting balances: {b0_source}", b0.house));
 
         let seat_ptr = &before.game.seats[usize::from(plan.signer() - 1)];
         let seal = self.wallet.owner_key(&before.game.house_account_name).await?;
@@ -471,7 +511,13 @@ impl App {
         r.reads = v.reads.clone();
         r.state_differences = v.diffs.clone();
         if let (Some(b), Some(e)) = (&chosen, r.events.iter_mut().find(|e| e["kind"] == "buy")) { e["business"] = json!(b); }
-        self.push_receipt(r).await;
+        let receipt = self.push_receipt(r).await;
+        // v0.4.5: only a RECONCILED outcome carries its verified balances to the next transaction.
+        if v.ok && cfg.network.carry_verified_balances {
+            if let (Some(version), Some(b1)) = (&v.after_version, &v.b1) {
+                *next = Some(Baseline { at: v.at.unwrap_or_else(Instant::now), version: version.clone(), balances: b1.clone(), receipt });
+            }
+        }
         if let Some(after) = &v.after {
             let _ = self.lots.lock().await.sync(game, &after.owners, &self.catalogue, dice::now());
             if let Some(b1) = &v.b1 {
@@ -523,8 +569,10 @@ impl App {
             });
             out.diffs = diffs;
             out.recon = recon;
+            out.after_version = after.as_ref().ok().map(|a| a.session_version.clone());
             out.after = after.ok().map(|a| a.session);
             out.b1 = b1.ok();
+            out.at = Some(Instant::now());
             out.cause = if ok { None } else if state_err.is_some() { Some("reread_failed".into()) }
                 else if !out.diffs.is_empty() { Some("state_fields_differ".into()) }
                 else if fee.is_none() { Some("no_final_fee".into()) } else { Some("balances_differ".into()) };
@@ -551,7 +599,7 @@ impl App {
     }
 
     /// Numbers the receipt, keeps it in memory and appends it to the receipts store.
-    async fn push_receipt(&self, mut r: Receipt) {
+    async fn push_receipt(&self, mut r: Receipt) -> u64 {
         let id = { let mut q = self.receipt_seq.lock().await; *q += 1; *q };
         r.id = id;
         if let Some(d) = self.receipts_path.parent() { let _ = fs::create_dir_all(d); }
@@ -564,6 +612,7 @@ impl App {
         v.push(r);
         let n = v.len();
         if n > RECEIPTS_KEPT { v.drain(..n - RECEIPTS_KEPT); }
+        id
     }
 
     /// Wallet account name of the main House (operator).
@@ -642,6 +691,9 @@ struct Verification {
     recon: Value,
     after: Option<Session>,
     b1: Option<Balances>,
+    /// v0.4.5: session version of the last verification read, and when that read was completed.
+    after_version: Option<Value>,
+    at: Option<Instant>,
 }
 
 /// The news events of a plan, one or more per step, for the Town Square news stack and sounds.
@@ -693,6 +745,21 @@ pub fn events(plan: &Plan) -> Vec<Value> {
         }
     }
     out
+}
+
+/// v0.4.5: the carried verified balances and a note when they may be b0 for a transaction whose
+/// fresh state read has session version `version`; otherwise why they may not.
+fn usable_baseline(carried: Option<Baseline>, version: &Value, enabled: bool) -> Result<(Balances, String), String> {
+    match carried {
+        Some(c) if !c.version.is_null() && c.version == *version && c.at.elapsed() < READ_MAX_AGE => {
+            let note = format!("carried from receipt {} (verified {} ms before, session version {})", c.receipt, c.at.elapsed().as_millis(), c.version);
+            Ok((c.balances, note))
+        }
+        None if !enabled => Err("carry_verified_balances off".into()),
+        None => Err("none carried (previous operation in this game not reconciled, or none since start)".into()),
+        Some(c) if c.version.is_null() || c.version != *version => Err(format!("session version changed (verified {}, now {version})", c.version)),
+        Some(c) => Err(format!("carried balances {} ms old (limit {} ms)", c.at.elapsed().as_millis(), READ_MAX_AGE.as_millis())),
+    }
 }
 
 /// Main House → game House transfer. Variables: `operator` (main House, pays the fee) and `house`.
@@ -783,6 +850,21 @@ mod tests {
     }
 
     #[test]
+    fn carried_balances_only_for_the_verified_version_and_age() {
+        let bal = Balances { seats: vec![1, 2, 3, 4], house: 5, community: 6, chance: 7 };
+        let base = |version: Value, age: Duration| Some(Baseline { at: Instant::now().checked_sub(age).unwrap(), version,
+            balances: bal.clone(), receipt: 9 });
+        let (b, note) = usable_baseline(base(json!(8), Duration::from_secs(1)), &json!(8), true).unwrap();
+        assert_eq!(b.as_vec(), bal.as_vec());
+        assert!(note.starts_with("carried from receipt 9"));
+        assert!(usable_baseline(base(json!(8), Duration::from_secs(1)), &json!(9), true).unwrap_err().starts_with("session version changed"));
+        assert!(usable_baseline(base(Value::Null, Duration::from_secs(1)), &Value::Null, true).unwrap_err().starts_with("session version changed"));
+        assert!(usable_baseline(base(json!(8), READ_MAX_AGE), &json!(8), true).unwrap_err().starts_with("carried balances"));
+        assert!(usable_baseline(None, &json!(8), true).unwrap_err().starts_with("none carried"));
+        assert_eq!(usable_baseline(None, &json!(8), false).unwrap_err(), "carry_verified_balances off");
+    }
+
+    #[test]
     fn receipts_store_reloads_and_skips_bad_lines() {
         let p = std::env::temp_dir().join(format!("oge-receipts-{}.jsonl", std::process::id()));
         let r = Receipt { id: 7, game: 1, round: 2, turn: 3, seat: 1, operation: "play_turn".into(), actor: "player".into(),
@@ -797,4 +879,4 @@ mod tests {
 }
 
 // End of app/src/ops.rs
-// Location: app/src/ops.rs · Created: 2026-11-16 15:40:30 UTC
+// Location: app/src/ops.rs · Created: 2026-11-16 21:06:48 UTC

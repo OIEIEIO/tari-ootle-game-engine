@@ -1,4 +1,4 @@
-<!-- Ootle Game Engine | docs/BACKEND.md · Version: v0.4.0 -->
+<!-- Ootle Game Engine | docs/BACKEND.md · Version: v0.4.5 -->
 # Backend (app/)
 
 Smart backend, plain page: the page renders `/api/game/{id}/state` and sends button presses.
@@ -49,7 +49,8 @@ Writes return `{"committed", "verified", "status", "transaction_id", "fee", "sto
 
 Read state (templates verified) → Roll (turns) → Prepare → Balances (seat funding and House reserve:
 House bucket + max fee) → Signers → Dry run → Submit → Wait result → Verify (read 1) → Verify read 2…
-(only while the state or a balance differs, up to `reconcile_reads`).
+(only while the state or a balance differs, up to `reconcile_reads`). v0.4.5: the Balances step
+ends with the source of the starting balances (`carried from receipt N (...)` or `read: <reason>`).
 
 Locks: one per game in separate treasury mode (the games share no account and settle in parallel),
 plus one for the main House (top-ups); in global treasury mode every game shares one lock, so
@@ -110,4 +111,21 @@ read, owned lots without a business get one at random (`source: assigned`) and l
 House are cleared. The state view adds to each square `zone`, `zone_name`, `district`, `business`,
 `business_source` (lots) or `special`; each seat has `piece_id`, `piece`, `color` (the seat colour).
 
-<!-- End of docs/BACKEND.md · Location: docs/BACKEND.md · Created: 2026-11-16 04:06:01 UTC -->
+## v0.4.4 and v0.4.5 additions
+
+v0.4.4: one shared read per game (`ops.rs` `snapshot`) for the page, game list, leaderboard and AI
+driver, dropped after every transaction in the game and otherwise kept at most 30 s (`READ_MAX_AGE`).
+
+v0.4.5 settings (`config/*.toml`, defaults in brackets):
+- `balance_refresh` [true]: the `refresh` flag of every `accounts.get_balances` call (`wallet.rs`).
+- `carry_verified_balances` [true]: after a RECONCILED transaction, the balances of its matching
+  verification read (with that read's session version and time) are kept for the game (`ops.rs`
+  `Baseline`). `execute` takes them out before the next transaction in that game, so they serve one
+  transaction at most; `run` uses them as b0 only when the session version of its fresh state read is
+  equal and they are less than `READ_MAX_AGE` old (`usable_baseline`), otherwise it reads b0. Only a
+  RECONCILED outcome stores new ones; in global treasury mode every game's are dropped after any
+  transaction. The House top-up re-reads b0 as before.
+
+`wallet.rs` `owner_key` is cached per account name or address (successful reads only).
+
+<!-- End of docs/BACKEND.md · Location: docs/BACKEND.md · Created: 2026-11-16 21:21:53 UTC -->
