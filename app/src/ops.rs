@@ -1,5 +1,5 @@
 //! Ootle Game Engine | app/src/ops.rs
-//! Version: v0.4.0
+//! Version: v0.4.4
 //! Application state and the write pipeline. One on-chain transaction per request:
 //!   live gate → seat check → per-game lock → read state + templates → balances → House top-up
 //!   when low → plan (sim.rs) → balance checks → signer keys → dry run → submit → wait result →
@@ -20,6 +20,13 @@
 //!     rows), the pipeline steps, the manifest, the named cause of an UNVERIFIED, and the move's news
 //!     events; receipts are appended to `receipts_store` (JSON lines) and reloaded at start;
 //!   - a purchase records the lot's business (lots.rs): the player's choice, or random for the AI.
+//! v0.4.4: one shared read per game (`snapshot`). v0.4.0 to v0.4.3 read the chain (4 components and
+//!   7 balances with refresh) from the AI loop about every second, from every page poll every 3 s, and
+//!   from the game list and leaderboard every 15 s, all through the one walletd; on Esmeralda that made
+//!   the game unusable. Every transaction in a game goes through `execute`, so the game's state only
+//!   changes then (or by outside transfers to its accounts): the read is kept until the next transaction
+//!   in that game invalidates it, or until it is READ_MAX_AGE old. The page, game list, leaderboard and
+//!   AI driver use it; a transaction itself (`run`, `verify`) and `roll` still read fresh.
 //! Signing: the game House key seals and pays the fee; the acting seat's key (and, for a reset, the
 //! operator key) is in `signing_key_ids`, which puts those badges in scope for the contract checks.
 
@@ -118,7 +125,14 @@ pub struct App {
     /// Per game: the last error the AI driver met, shown on the page until a move succeeds.
     pub driver_error: Mutex<HashMap<u64, String>>,
     pub started_at: u64,
+    /// v0.4.4: per game, the shared read (state and balances) and when it was taken. The mutex also
+    /// makes callers that arrive during a read wait for it instead of reading again.
+    reads: HashMap<u64, Arc<Mutex<Option<(Instant, Snapshot, Balances)>>>>,
 }
+
+/// v0.4.4: the longest a shared read is kept without a transaction in its game (outside transfers,
+/// such as funding the main House, show up within this time).
+pub const READ_MAX_AGE: Duration = Duration::from_secs(30);
 
 pub type Shared = Arc<App>;
 
@@ -206,6 +220,7 @@ impl App {
         let receipts_path = cfg.receipts_path();
         let receipts = load_receipts(&receipts_path)?;
         let seq = receipts.iter().map(|r| r.id).max().unwrap_or(0);
+        let reads = cfg.game_ids().into_iter().map(|g| (g, Arc::new(Mutex::new(None)))).collect();
         let shared = Arc::new(Mutex::new(()));
         let locks = cfg.game_ids().into_iter()
             .map(|g| (g, if cfg.all_separate() { Arc::new(Mutex::new(())) } else { shared.clone() })).collect();
@@ -213,7 +228,39 @@ impl App {
             lots: Mutex::new(lots), locks, operator_lock: Mutex::new(()), receipts: Mutex::new(receipts),
             receipt_seq: Mutex::new(seq), receipts_path, pipelines: Mutex::new(HashMap::new()),
             seen: Mutex::new(HashMap::new()), last_auto: Mutex::new(HashMap::new()), auto_window: Mutex::new(VecDeque::new()),
-            driver_error: Mutex::new(HashMap::new()), started_at: dice::now() })
+            driver_error: Mutex::new(HashMap::new()), started_at: dice::now(), reads })
+    }
+
+    /// v0.4.4: the game's state and balances from the shared read, reading the chain only when there is
+    /// none, when a transaction in this game has completed since, or when it is READ_MAX_AGE old.
+    pub async fn snapshot(&self, game: u64) -> Result<(Snapshot, Balances), String> {
+        let slot = self.reads.get(&game).cloned().ok_or_else(|| format!("unknown game {game}"))?;
+        let mut held = slot.lock().await;
+        if let Some((at, snap, bal)) = held.as_ref() {
+            if at.elapsed() < READ_MAX_AGE { return Ok((snap.clone(), bal.clone())); }
+        }
+        let snap = chain::read(&self.cfg, &self.wallet, game).await?;
+        let bal = chain::balances(&self.wallet, &snap.game, &snap.session.resource).await?;
+        *held = Some((Instant::now(), snap.clone(), bal.clone()));
+        Ok((snap, bal))
+    }
+
+    /// v0.4.4: the game's state only (no balances): the shared read when there is one, otherwise one
+    /// chain read, not kept. Used by the game list, which shows no balances.
+    pub async fn snapshot_state(&self, game: u64) -> Result<Snapshot, String> {
+        if let Some(slot) = self.reads.get(&game) {
+            if let Ok(held) = slot.try_lock() {
+                if let Some((at, snap, _)) = held.as_ref() {
+                    if at.elapsed() < READ_MAX_AGE { return Ok(snap.clone()); }
+                }
+            }
+        }
+        chain::read(&self.cfg, &self.wallet, game).await
+    }
+
+    /// v0.4.4: drops the game's shared read, so the next caller reads the chain.
+    pub async fn invalidate(&self, game: u64) {
+        if let Some(slot) = self.reads.get(&game) { *slot.lock().await = None; }
     }
 
     pub fn game_lock(&self, game: u64) -> Result<Arc<Mutex<()>>, String> {
@@ -236,8 +283,7 @@ impl App {
     }
 
     pub async fn state(&self, game: u64, token: Option<&str>) -> Result<Value, String> {
-        let snap = chain::read(&self.cfg, &self.wallet, game).await?;
-        let bal = chain::balances(&self.wallet, &snap.game, &snap.session.resource).await?;
+        let (snap, bal) = self.snapshot(game).await?;
         let s = &snap.session;
         let lots = {
             let mut l = self.lots.lock().await;
@@ -282,6 +328,8 @@ impl App {
         let mut rec = Rec { p: Pipeline { game, operation: req.name().into(), actor: actor.label().into(),
             started_at: dice::now(), ..Default::default() }, t: Instant::now() };
         let r = self.run(game, req, &actor, &mut rec).await;
+        // v0.4.4: whatever the outcome, the shared read may no longer match the chain.
+        self.invalidate(game).await;
         if let Err(e) = &r { rec.step("Stopped", "error", e.reason.clone()); }
         self.pipelines.lock().await.insert(game, rec.p);
         r

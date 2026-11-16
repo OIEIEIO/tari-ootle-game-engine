@@ -1,8 +1,11 @@
-<!-- Ootle Game Engine | VALIDATION.md · Version: v0.4.3 -->
+<!-- Ootle Game Engine | VALIDATION.md · Version: v0.4.4 -->
 # Validation performed in the build environment
 
 | Check | Command | Result |
 |---|---|---|
+| v0.4.4: backend builds with no warnings; backend unit tests | `cd app && cargo build --release && cargo test --lib` | 0 warnings · 20 passed |
+| v0.4.4: walletd calls and page times, v0.4.3 and v0.4.4 binaries, fake wallet behind a proxy adding 300 ms per call, one game, one player claimed (AI driver active), 60 s of the page's polling (state every 3 s, game list and leaderboard every 15 s) | scratch harness, not shipped | v0.4.3: 594 calls, state 1.22 s to 2.24 s · v0.4.4: 22 calls, state 0.001 s (1.22 s once per 30 s) |
+| v0.4.4: a transaction against a live wallet with the shared read | not run here | Not verified |
 | Rules unit tests (contracts unchanged) | `cd contracts/town_square && cargo test --lib` | 10 passed |
 | Deploy script unit tests (v0.4.3 adds the --fund-from-house plan, the main House balance check before any transfer, journaled transfers and resume) | `python3 -m unittest discover -s tests -v` | 23 passed |
 | v0.4.3: engine tests for the deploy manifests re-run (the step manifests are unchanged) | `cd engine-tests && cargo test --test deploy_manifests` | 2 passed |

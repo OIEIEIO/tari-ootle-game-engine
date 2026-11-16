@@ -1,5 +1,5 @@
-<!-- Ootle Game Engine | README.md · Version: v0.4.3 -->
-# Ootle Game Engine v0.4.3
+<!-- Ootle Game Engine | README.md · Version: v0.4.4 -->
+# Ootle Game Engine v0.4.4
 
 A free-play demonstration of a blockchain game engine on Tari Ootle: four Ootle templates, a Rust
 backend that signs for every seat, and a single game page. The House is funded by the operator; there
@@ -13,6 +13,24 @@ is no buy-in and no cash-out. Independent of the v0.6.18 game and of every earli
 | Town Square catalogue: zones, businesses, special squares | `app/config/catalogue.json` |
 | Engine harness tests | `engine-tests/` |
 | Monte Carlo economics | `tools/econ-sim/` (v0.3.2) |
+
+## What changed in v0.4.4
+
+Backend only (page, rules, contracts, deploy script unchanged). v0.4.0 to v0.4.3 read the chain far
+more often than v0.6.15 did, all through the one walletd: the AI driver about once a second per game
+with a player (4 components and 7 balances with `refresh: true`), the page poll every 3 s, and the game
+list and leaderboard over every game every 15 s. v0.4.4 keeps one shared read per game (`app/src/ops.rs`
+`snapshot`):
+- the page state, the game list, the leaderboard and the AI driver use it;
+- it is dropped after every transaction in that game (`execute`), and otherwise kept at most 30 s
+  (`READ_MAX_AGE`), so outside transfers show within 30 s;
+- the game list reads only the game's state (it shows no balances);
+- a transaction itself still reads fresh before submitting, and the verification re-reads are unchanged;
+  `roll`, `/api/health` and the Developer tab still read fresh.
+
+Measured against the fake wallet with 300 ms added to every walletd call, one game, one player, 60 s
+of the page's polling: v0.4.3 made 594 walletd calls, v0.4.4 made 22; page state polls took 1.22 s
+to 2.24 s on v0.4.3 and 0.001 s on v0.4.4 (1.22 s once, when the 30 s read was renewed).
 
 ## What changed in v0.4.3
 
@@ -164,7 +182,7 @@ pointers). Only the backend and the page change.
 v0.3.0 gave Town Square new state fields, so the templates are published again and the 5 games are new.
 The deploy script refuses a journal written by an earlier version. Move the old `deployments/`
 folder aside (or pass new `--state` / `--pointers` names); the earlier deployment is not changed.
-v0.4.0 to v0.4.3 change no contract: keep the v0.3.0 `deployments/` folder (and `app/data/`) and start the new backend.
+v0.4.0 to v0.4.4 change no contract: keep the v0.3.0 `deployments/` folder (and `app/data/`) and start the new backend.
 
 ## Desktop: local Swarm (wallet on 127.0.0.1:12010)
 

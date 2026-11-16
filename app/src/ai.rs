@@ -1,5 +1,5 @@
 //! Ootle Game Engine | app/src/ai.rs
-//! Version: v0.4.0
+//! Version: v0.4.4
 //! AI seats and the auto-roll, run by the backend. One driver task per game.
 //!
 //! Who moves without a person:
@@ -19,7 +19,6 @@
 //! the next one; `ai_tx_per_minute` (0 = no cap) limits these transactions across all games.
 
 use crate::{
-    chain,
     claims::Holder,
     decode::Session,
     dice::{self, Roll},
@@ -94,7 +93,9 @@ async fn step(app: &Shared, game: u64) -> Result<bool, String> {
         if w.len() >= cfg.ai_tx_per_minute as usize { return Ok(false); }
     }
     if app.game_lock(game)?.try_lock().is_err() { return Ok(false); }
-    let snap = chain::read(&app.cfg, &app.wallet, game).await?;
+    // v0.4.4: the game's shared read (ops.rs `snapshot`), not a new chain read on every step;
+    // `execute` still reads fresh before it submits.
+    let (snap, bal) = app.snapshot(game).await?;
     let s = &snap.session;
     if !s.started { return Ok(false); }
     let claims = app.claims.lock().await.seats(game, s.capacity);
@@ -119,7 +120,6 @@ async fn step(app: &Shared, game: u64) -> Result<bool, String> {
             Some(r) => r,
             None => app.rolls.lock().await.roll(game, s.round, s.turn_count, a, false)?,
         };
-        let bal = chain::balances(&app.wallet, &snap.game, &s.resource).await?;
         let cash = bal.seats[usize::from(a - 1)];
         let m = decide(s, snap.treasury.community_bps, snap.treasury.chance_bps, &roll, cash, st)?;
         let req = match m {

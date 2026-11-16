@@ -4,7 +4,7 @@
 # The board rules are shared with the on-chain template (contracts/town_square/src/rules.rs).
 [package]
 name = "ootle-game-engine-app"
-version = "0.4.3"
+version = "0.4.4"
 edition = "2021"
 publish = false
 

@@ -1,5 +1,5 @@
 //! Ootle Game Engine | app/src/main.rs
-//! Version: v0.4.0
+//! Version: v0.4.4
 //! Axum server on 127.0.0.1: serves the single game page and a JSON API over the backend.
 //! Reads are always live from the wallet; writes need OOTLE_ENABLE_LIVE_TESTS=1.
 //! v0.3.0: seat claiming (player token in the `x-player-token` header; one game per token),
@@ -92,14 +92,17 @@ async fn info(State(app): State<Shared>) -> Response {
 async fn catalogue(State(app): State<Shared>) -> Response { ok(json!(app.catalogue)) }
 
 /// One row per game: round, who holds each seat, open seats, and the leading net worth.
-async fn game_row(app: &Shared, id: u64) -> Value {
+/// v0.4.4: from the game's shared read (ops.rs `snapshot`). The game list (`with_balances` false)
+/// shows no balances, so it reads only the game's state; the leaderboard reads both.
+async fn game_row(app: &Shared, id: u64, with_balances: bool) -> Value {
     let g = match app.cfg.game(id) { Ok(g) => g.clone(), Err(e) => return json!({"id": id, "readable": false, "error": e}) };
-    let snap = match chain::read(&app.cfg, &app.wallet, id).await {
-        Ok(s) => s,
+    let read = if with_balances { app.snapshot(id).await.map(|(s, b)| (s, Some(b))) }
+               else { app.snapshot_state(id).await.map(|s| (s, None)) };
+    let (snap, bal) = match read {
+        Ok(r) => r,
         Err(e) => return json!({"id": id, "capacity": g.capacity, "readable": false, "error": e}),
     };
     let s = &snap.session;
-    let bal = chain::balances(&app.wallet, &snap.game, &s.resource).await.ok();
     let claims = app.claims.lock().await.seats(id, s.capacity);
     let seats: Vec<Value> = (1..=s.capacity).map(|n| {
         let i = usize::from(n - 1);
@@ -121,7 +124,7 @@ async fn game_row(app: &Shared, id: u64) -> Value {
 
 async fn games(State(app): State<Shared>) -> Response {
     let mut set = tokio::task::JoinSet::new();
-    for id in app.cfg.game_ids() { let a = app.clone(); set.spawn(async move { game_row(&a, id).await }); }
+    for id in app.cfg.game_ids() { let a = app.clone(); set.spawn(async move { game_row(&a, id, false).await }); }
     let mut rows = vec![];
     while let Some(r) = set.join_next().await { if let Ok(v) = r { rows.push(v); } }
     rows.sort_by_key(|r| r["id"].as_u64().unwrap_or(0));
@@ -185,7 +188,7 @@ async fn leaderboard(State(app): State<Shared>) -> Response {
     let cache = BOARD_CACHE.get_or_init(|| Mutex::new(None));
     if let Some((t, v)) = cache.lock().await.as_ref() { if t.elapsed() < Duration::from_secs(10) { return ok(v.clone()); } }
     let mut set = tokio::task::JoinSet::new();
-    for id in app.cfg.game_ids() { let a = app.clone(); set.spawn(async move { game_row(&a, id).await }); }
+    for id in app.cfg.game_ids() { let a = app.clone(); set.spawn(async move { game_row(&a, id, true).await }); }
     let mut live = vec![];
     while let Some(Ok(r)) = set.join_next().await {
         if r["readable"] != json!(true) { continue; }
