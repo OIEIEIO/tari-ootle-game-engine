@@ -1,8 +1,9 @@
 # Ootle Game Engine | tests/test_deploy_local.py
-# Version: v0.3.0
+# Version: v0.4.3
 # Unit tests for scripts/deploy_local.py: manifest rendering and journal safety. No wallet needed.
 # The rendered manifests are also executed in the Tari engine by engine-tests/tests/deploy_manifests.rs.
 # v0.3.0: a pool of games, per-game economics, seat cash settlement, and the journal version check.
+# v0.4.3: --fund-from-house plan, balance check before any transfer, journaled transfers, resume.
 import importlib.util
 import json
 import pathlib
@@ -197,6 +198,58 @@ class Journal(unittest.TestCase):
         self.assertEqual(len(r), 3 + 2 * (3 + 3))
         self.assertIn('g2_seat3', r)
         self.assertEqual(len(d.roles_of({'games': 2, 'players': 3, 'treasury_mode': 'global'})), 3 + 2 * 3)
+
+    def test_fund_plan_amounts(self):
+        st = {'games': 5, 'players': 4, 'treasury_mode': 'separate', 'seat_start': d.SEAT_START}
+        plan = dict(d.fund_plan(st))
+        self.assertNotIn('global_house', plan)
+        self.assertEqual(len(plan), 37)
+        self.assertEqual(plan['g1_seat1'], 2_000_000)
+        self.assertEqual(plan['g3_house'], 88_000_000)
+        self.assertEqual(plan['g5_chance'], 1_000_000)
+        self.assertEqual(plan['global_community'], 1_000_000)
+        self.assertEqual(sum(plan.values()), 492_000_000)
+        self.assertEqual(d.fund_need(st), 492_000_000 + 37 * d.FEE + d.FUND_HOUSE_RESERVE)
+
+    def _fund_state(self):
+        st = {'games': 1, 'players': 2, 'treasury_mode': 'separate', 'seat_start': d.SEAT_START,
+              'accounts': {}, 'funded': {}, 'transactions': {}}
+        for r in d.roles_of(st):
+            st['accounts'][r] = {'name': 'OGE-t-' + r, 'component': C('0')}
+        return st
+
+    def test_fund_from_house_refuses_when_the_main_house_is_short(self):
+        st, sent = self._fund_state(), []
+        def fake(method, params, token=None):
+            sent.append(method)
+            return {'balances': [{'resource_address': d.RESOURCE, 'balance': '1000000'}]} if method == 'accounts.get_balances' else {}
+        with tempfile.TemporaryDirectory() as tmp, patch.object(d, 'rpc', side_effect=fake):
+            with self.assertRaisesRegex(RuntimeError, 'Nothing sent'):
+                d.fund_from_house(st, 'tok', pathlib.Path(tmp) / 's.json')
+        self.assertNotIn('accounts.transfer', sent)
+
+    def test_fund_from_house_journals_each_transfer_and_resumes(self):
+        st, sent = self._fund_state(), []
+        def fake(method, params, token=None):
+            if method == 'accounts.get_balances':
+                return {'balances': [{'resource_address': d.RESOURCE, 'balance': str(10**12)}]}
+            if method == 'accounts.get':
+                return {'account': {'owner_public_key': 'ab' * 32}}
+            if method == 'accounts.transfer':
+                sent.append(params)
+                return {'transaction_id': 'tx%d' % len(sent)}
+            if method == 'transactions.wait_result':
+                return {'status': 'Accepted', 'result': {'result': {'Accept': {}}}}
+            raise AssertionError(method)
+        with tempfile.TemporaryDirectory() as tmp, patch.object(d, 'rpc', side_effect=fake):
+            path = pathlib.Path(tmp) / 's.json'
+            d.fund_from_house(st, 'tok', path)
+            self.assertEqual(len(sent), len(d.fund_plan(st)))
+            self.assertTrue(all(p['account'] == {'Name': 'OGE-t-global_house'} and p['resource_address'] == d.RESOURCE
+                                and p['dry_run'] is False for p in sent))
+            self.assertEqual({k for k in st['transactions']}, {'fund:' + r for r, _ in d.fund_plan(st)})
+            d.fund_from_house(st, 'tok', path)          # everything funded: nothing is sent again
+            self.assertEqual(len(sent), len(d.fund_plan(st)))
 
     def test_address_validation(self):
         self.assertEqual(d.component(C('a')), C('a'))

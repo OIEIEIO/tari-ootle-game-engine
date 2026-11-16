@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Ootle Game Engine | scripts/deploy_local.py
-# Version: v0.3.0
+# Version: v0.4.3
 # Deployment of the four-contract Ootle game engine and its pool of games (default 5) through a
 # wallet daemon on this machine (local Swarm, or Esmeralda through the server's own wallet daemon).
 #
@@ -24,6 +24,17 @@
 # before waiting; an unknown outcome stops the run instead of resubmitting; finished steps are skipped.
 # A journal written by an earlier version is refused (use a fresh deployments/ folder).
 # Earlier deployments (v0.6.18, v0.1.x, v0.2.0) are never read or changed.
+#
+# v0.4.3: `--fund-from-house` funds every other account from the main House (global_house) with
+#   walletd `accounts.transfer`, journaled like every other transaction, instead of the Ootle faucet.
+#   For networks whose Ootle faucet is empty: send tTARI to the main House first (for example from a
+#   community faucet), then run with this option. It is off unless passed. Amounts (FUND_*): 2.000000 to
+#   each seat (its register/claim fee), seats × (seat start + 2.000000) to each game House (88.000000
+#   with 4 seats: each seat topped up to the seat start, plus one settle fee per seat), 1.000000 to each
+#   Community/Chance account (so it exists on chain). The
+#   main House must hold those amounts plus a reserve for its own fees (FUND_HOUSE_RESERVE) before
+#   anything is sent. The journal format is unchanged (VERSION stays 0.3.0), so a stopped v0.3.0
+#   deployment resumes with this option.
 #
 # Test hook: `--list-steps` and `--render STEP --context FILE` print the exact manifests this
 # script submits, so engine-tests can execute them in the Tari engine harness.
@@ -68,6 +79,10 @@ DEFAULT_ECONOMICS = {'go_floor': PARAMS['go_reward'], 'go_scaled': False, 'rent_
                      'build_on_landing': True, 'fee_amount': PARAMS['fee_amount'],
                      'penalty_amount': PARAMS['penalty_amount']}
 SEAT_START = 20_000_000
+# v0.4.3 --fund-from-house amounts (base units)
+FUND_SEAT = 2_000_000                       # a seat's register/claim max fee
+FUND_POOL = 1_000_000                       # Community/Chance accounts: no transactions, only to exist on chain
+FUND_HOUSE_RESERVE = 110_000_000            # main House: 4 publishes × 3 + 49 operator steps × 2, at most
 
 
 def units(text):
@@ -318,6 +333,64 @@ def balance(name, token):
     return 0
 
 
+def fund_plan(state):
+    """v0.4.3: (role, amount) for every account the main House funds with --fund-from-house.
+    A game House gets the seat start plus one settle fee per seat (the seat's own 2.000000 is spent on its
+    register/claim fee, so the top-up can approach the full seat start);
+    in global mode the main House itself does the top-ups, so its need grows instead."""
+    plan = []
+    for role in roles_of(state):
+        if role == 'global_house':
+            continue
+        if re.fullmatch(r'g\d+_seat\d+', role):
+            plan.append((role, FUND_SEAT))
+        elif re.fullmatch(r'g\d+_house', role):
+            plan.append((role, state['players'] * (state['seat_start'] + FEE)))
+        else:
+            plan.append((role, FUND_POOL))
+    return plan
+
+
+def fund_need(state):
+    """Main House balance needed before --fund-from-house sends anything (base units)."""
+    need = sum(x for _, x in fund_plan(state)) + FUND_HOUSE_RESERVE + FEE * len(fund_plan(state))
+    if state['treasury_mode'] == 'global':
+        need += state['games'] * state['players'] * (state['seat_start'] + FEE)
+    return need
+
+
+def fund_from_house(state, token, state_path):
+    """v0.4.3: transfers from the main House to every other account (walletd accounts.transfer, which also
+    creates the destination account on chain when it does not exist yet). Journaled as 'fund:<role>'."""
+    operator = state['accounts']['global_house']
+    todo = [(r, x) for r, x in fund_plan(state) if not state['funded'].get(r)]
+    if not todo:
+        return
+    have = balance(operator['name'], token)
+    left = sum(x + FEE for _, x in todo) + FUND_HOUSE_RESERVE
+    if state['treasury_mode'] == 'global':
+        left += state['games'] * state['players'] * (state['seat_start'] + FEE)
+    if have < left:
+        raise RuntimeError(f'Main House {operator["name"]} holds {have / 1e6:.6f} tTARI; --fund-from-house needs '
+                           f'{left / 1e6:.6f} for {len(todo)} transfers plus its own fee reserve. Nothing sent.')
+    for role, amount in todo:
+        acc = rpc('accounts.get', {'name_or_address': state['accounts'][role]['name']}, token)
+        acc = acc.get('account', acc)
+        key = acc.get('owner_public_key')
+        if not isinstance(key, str) or not re.fullmatch(r'[0-9a-fA-F]{64}', key):
+            raise RuntimeError(f'{role}: wallet returned no owner public key; nothing sent to it')
+
+        def send(k=key, x=amount):
+            r = rpc('accounts.transfer', {'account': {'Name': operator['name']}, 'amount': x,
+                                          'resource_address': RESOURCE, 'destination_public_key': k,
+                                          'max_fee': FEE, 'proof_from_badge_resource': None, 'dry_run': False}, token)
+            return r['transaction_id']
+        journal_tx(state, 'fund:' + role, send, token, state_path)
+        state['funded'][role] = True
+        save(state_path, state)
+        print(f'Funded {role} from the main House: {amount / 1e6:.6f} tTARI')
+
+
 def roles_of(state):
     roles = ['global_house', 'global_community', 'global_chance']
     for g in range(1, state['games'] + 1):
@@ -485,6 +558,9 @@ def parse_args(argv=None):
     ap.add_argument('--fee-amount', type=units, default=PARAMS['fee_amount'], help='fee squares, tTARI (default 1)')
     ap.add_argument('--penalty-amount', type=units, default=PARAMS['penalty_amount'], help='penalty square, tTARI (default 2)')
     ap.add_argument('--no-faucet', action='store_true', help='do not request faucet funds')
+    ap.add_argument('--fund-from-house', action='store_true',
+                    help='v0.4.3: fund every other account from the main House instead of the Ootle faucet '
+                         '(send tTARI to the main House first; off unless passed)')
     ap.add_argument('--verify-only', action='store_true', help='read and verify the recorded deployment; no writes')
     ap.add_argument('--list-steps', action='store_true', help=argparse.SUPPRESS)
     ap.add_argument('--render', metavar='STEP', help=argparse.SUPPRESS)
@@ -561,7 +637,9 @@ def main():
     print(f'Ootle game engine v{VERSION} deployment {state["tag"]}: {state["games"]} games × {state["players"]} seats, '
           f'{state["treasury_mode"]} treasury, seat start {state["seat_start"] / 1e6:.6f} tTARI.')
     print(f'Economics per game: {state["economics"]}')
-    print(f'{len(roles)} new accounts{"" if a.no_faucet else " (each funded from the faucet)"}, 4 templates, '
+    funding = (f' (funded from the main House: {fund_need(state) / 1e6:.6f} tTARI needed there)' if a.fund_from_house
+               else '' if a.no_faucet else ' (each funded from the faucet)')
+    print(f'{len(roles)} accounts{funding}, 4 templates, '
           f'{len(steps)} setup transactions. Earlier deployments are not touched.')
     if input('Type DEPLOY to authorize these on-chain operations: ').strip() != 'DEPLOY':
         print('Cancelled. Nothing submitted.')
@@ -569,7 +647,9 @@ def main():
 
     for role in roles:
         create_account(state, role, token, state_path)
-    if not a.no_faucet:
+    if a.fund_from_house:
+        fund_from_house(state, token, state_path)
+    elif not a.no_faucet:
         for role in roles:
             if state['funded'].get(role):
                 continue

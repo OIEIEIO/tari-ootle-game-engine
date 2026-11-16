@@ -1,5 +1,5 @@
-<!-- Ootle Game Engine | README.md · Version: v0.4.2 -->
-# Ootle Game Engine v0.4.2
+<!-- Ootle Game Engine | README.md · Version: v0.4.3 -->
+# Ootle Game Engine v0.4.3
 
 A free-play demonstration of a blockchain game engine on Tari Ootle: four Ootle templates, a Rust
 backend that signs for every seat, and a single game page. The House is funded by the operator; there
@@ -13,6 +13,25 @@ is no buy-in and no cash-out. Independent of the v0.6.18 game and of every earli
 | Town Square catalogue: zones, businesses, special squares | `app/config/catalogue.json` |
 | Engine harness tests | `engine-tests/` |
 | Monte Carlo economics | `tools/econ-sim/` (v0.3.2) |
+
+## What changed in v0.4.3
+
+Deploy script only (backend, page, contracts unchanged).
+- **`--fund-from-house`** (off unless passed): funds every other account from the main House with
+  walletd `accounts.transfer` instead of the Ootle faucet, for a network whose Ootle faucet is empty.
+  Each transfer is journaled (`fund:<role>`) and a rerun skips the ones done. Amounts: 2.000000 per seat,
+  88.000000 per game House (4 seats × (20.000000 + 2.000000)), 1.000000 per Community/Chance account.
+  For 5 games × 4 seats that is 492.000000 to 37 accounts; the main House must hold 676.000000
+  (those amounts, 37 transfer fees at 2.000000 at most, and a 110.000000 reserve for its own deploy
+  fees) before anything is sent, or the script stops with nothing sent.
+- The journal format is unchanged, so a deployment stopped at the faucet resumes with this option.
+
+Esmeralda with an empty Ootle faucet: send tTARI to the main House (`OGE-<tag>-global_house`, its
+`otl_esm_…` address from `accounts.get`), for example from a community faucet, then:
+
+```bash
+OOTLE_WALLET_RPC=http://127.0.0.1:<port>/json_rpc OOTLE_WALLET_COOKIE_PATH=<cookie> ./scripts/deploy-esmeralda.sh --fund-from-house
+```
 
 ## What changed in v0.4.2
 
@@ -145,7 +164,7 @@ pointers). Only the backend and the page change.
 v0.3.0 gave Town Square new state fields, so the templates are published again and the 5 games are new.
 The deploy script refuses a journal written by an earlier version. Move the old `deployments/`
 folder aside (or pass new `--state` / `--pointers` names); the earlier deployment is not changed.
-v0.4.0, v0.4.1 and v0.4.2 change no contract: keep the v0.3.0 `deployments/` folder (and `app/data/`) and start the new backend.
+v0.4.0 to v0.4.3 change no contract: keep the v0.3.0 `deployments/` folder (and `app/data/`) and start the new backend.
 
 ## Desktop: local Swarm (wallet on 127.0.0.1:12010)
 

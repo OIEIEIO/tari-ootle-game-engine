@@ -1,10 +1,10 @@
 # Ootle Game Engine | app/Cargo.toml
-# Version: v0.4.2
+# Version: v0.4.3
 # Backend (Axum) and embedded frontend for the four-contract Ootle game engine.
 # The board rules are shared with the on-chain template (contracts/town_square/src/rules.rs).
 [package]
 name = "ootle-game-engine-app"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2021"
 publish = false
 

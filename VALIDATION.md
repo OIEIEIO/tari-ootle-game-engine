@@ -1,10 +1,12 @@
-<!-- Ootle Game Engine | VALIDATION.md · Version: v0.4.2 -->
+<!-- Ootle Game Engine | VALIDATION.md · Version: v0.4.3 -->
 # Validation performed in the build environment
 
 | Check | Command | Result |
 |---|---|---|
 | Rules unit tests (contracts unchanged) | `cd contracts/town_square && cargo test --lib` | 10 passed |
-| Deploy script unit tests (unchanged) | `python3 -m unittest discover -s tests -v` | 20 passed |
+| Deploy script unit tests (v0.4.3 adds the --fund-from-house plan, the main House balance check before any transfer, journaled transfers and resume) | `python3 -m unittest discover -s tests -v` | 23 passed |
+| v0.4.3: engine tests for the deploy manifests re-run (the step manifests are unchanged) | `cd engine-tests && cargo test --test deploy_manifests` | 2 passed |
+| v0.4.3: `--fund-from-house` against a live wallet | not run here: `accounts.transfer` is used as defined in the tari-ootle walletd source (request fields account, amount, resource_address, destination_public_key, max_fee, proof_from_badge_resource, dry_run); your walletd build may differ | Not verified |
 | v0.4.2 page check against the fake wallet | headless Chrome with every API response delayed 700 ms: the lobby is shown at every sample from the first 250 ms (no board before it); Enter without sound → intro → board on the near-black backdrop | As expected, no page errors |
 | Re-run for v0.4.2: backend unit tests, deploy script tests, page scripts parse (the backend has no code change since v0.4.0; the engine tests were last run for v0.4.1) | | 20 passed · 20 passed · OK |
 | Backend unit tests (adds catalogue coverage of the board, lot store sync / choose / clear, stale-then-fresh verification reads with the turn 301 numbers, news events, receipts store reload) | `cd app && cargo test --lib` | 20 passed |
